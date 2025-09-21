@@ -1,0 +1,12 @@
+DATASET/*
+./DATASET/*
+__pycache__
+.qodo
+SIH2025-IDEA-Presentation-Format(1).pptx
+argo_data_export_full.csv
+argo_data_export_full.csv.zip
+argo_data_export.csv
+argo_data_export.csv.zip
+argo_data_dumpt.txt
+chroma_full_dump.txt
+
