@@ -1,0 +1,381 @@
+2025-09-21 09:07:15,129 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:07:15,337 - tools.retriever_tool - ERROR - Failed to initialize ChromaDB: Collection [argo_profiles_ollama] does not exists
+2025-09-21 09:08:30,557 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:08:30,646 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:08:30,742 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:08:30,969 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:08:30,970 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:08:31,016 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:08:44,226 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:08:44,313 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:08:44,405 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:08:44,623 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:08:44,624 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:08:44,648 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:08:44,648 - core.workflow_engine - INFO - Processing query: 'Show temperature statistics for Bay of Bengal profiles...' (Session: None)
+2025-09-21 09:08:44,648 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:08:53,057 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature'], 'regions': ['Bay of Bengal', 'Arabian Sea', 'Indian Ocean', 'Southern Ocean'], 'time_period': '', 'analysis_type': 'statistics', 'output_format': 'table'}
+2025-09-21 09:08:53,058 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:08:53,058 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:08:53,058 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:08:53,058 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:08:53,058 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:08:53,058 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Bay of Bengal'
+2025-09-21 09:08:54,745 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:08:54,745 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:08:54,947 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:08:56,212 - tools.sql_executor_tool - INFO - Retrieved 13274 measurements from 20 profiles
+2025-09-21 09:08:56,212 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:08:56,258 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:08:56,258 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:08:56,258 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:08:56,258 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:09:39,533 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:09:39,533 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:09:39,534 - core.workflow_engine - INFO - XAI Log: {'session_id': 'session_1758425924', 'timestamp': '2025-09-21T09:09:39.534746', 'user_query': 'Show temperature statistics for Bay of Bengal profiles', 'workflow_stages': ['planning', 'execution', 'synthesis'], 'execution_summary': {'total_duration': 54.885241, 'stages_completed': 3, 'success': True}, 'data_sources_used': ['ChromaDB', 'PostgreSQL', 'ARGO Float Database'], 'analysis_methods': ['Retrieve relevant ARGO profiles from vector database', 'Fetch detailed measurements for retrieved profiles', 'Calculate statistical summary of profiles'], 'key_findings': ['Analyzed 20 ARGO profiles', 'Consider generating visualizations for better data interpretation']}
+2025-09-21 09:09:39,534 - core.workflow_engine - INFO - Workflow completed successfully in 54.89 seconds
+2025-09-21 09:10:03,619 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:10:03,727 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:10:03,846 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:10:04,096 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:10:04,097 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:10:04,130 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:11:36,449 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:11:36,538 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:11:36,644 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:11:36,948 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:11:36,949 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:11:36,997 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:11:36,997 - core.workflow_engine - INFO - Processing query: 'Create a temperature vs depth plot for profiles in the Arabian Sea...' (Session: None)
+2025-09-21 09:11:36,998 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:11:43,219 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature', 'depth'], 'regions': ['Arabian Sea'], 'time_period': '', 'analysis_type': 'plot', 'output_format': 'visualization'}
+2025-09-21 09:11:43,219 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:11:43,219 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:11:43,219 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:11:43,219 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:11:43,220 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:11:43,220 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Arabian Sea'
+2025-09-21 09:11:43,767 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:11:43,767 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:11:43,921 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:11:44,761 - tools.sql_executor_tool - INFO - Retrieved 11859 measurements from 20 profiles
+2025-09-21 09:11:44,762 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:11:44,787 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:11:44,787 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:11:44,787 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:11:44,788 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:12:44,792 - agents.synthesizer_agent - ERROR - Failed to call Ollama: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+2025-09-21 09:12:44,793 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:12:44,793 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:12:44,793 - core.workflow_engine - INFO - XAI Log: {'session_id': 'session_1758426096', 'timestamp': '2025-09-21T09:12:44.793617', 'user_query': 'Create a temperature vs depth plot for profiles in the Arabian Sea', 'workflow_stages': ['planning', 'execution', 'synthesis'], 'execution_summary': {'total_duration': 67.79593, 'stages_completed': 3, 'success': True}, 'data_sources_used': ['ChromaDB', 'PostgreSQL', 'ARGO Float Database'], 'analysis_methods': ['Retrieve relevant ARGO profiles from vector database', 'Fetch detailed measurements for retrieved profiles', 'Calculate statistical summary of profiles'], 'key_findings': ['Analyzed 20 ARGO profiles', 'Consider generating visualizations for better data interpretation']}
+2025-09-21 09:12:44,793 - core.workflow_engine - INFO - Workflow completed successfully in 67.80 seconds
+2025-09-21 09:12:57,145 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:12:57,232 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:12:57,327 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:12:57,555 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:12:57,557 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:12:57,584 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:12:57,584 - core.workflow_engine - INFO - Processing query: 'Show temperature profile visualization for Bay of Bengal with depth analysis...' (Session: None)
+2025-09-21 09:12:57,584 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:13:02,911 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature', 'pressure'], 'regions': ['Bay of Bengal'], 'time_period': '', 'analysis_type': 'profiles', 'output_format': 'visualization'}
+2025-09-21 09:13:02,911 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:13:02,911 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:13:02,911 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:13:02,911 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:13:02,911 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:13:02,911 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Bay of Bengal'
+2025-09-21 09:13:03,085 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:13:03,085 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:13:03,212 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:13:03,770 - tools.sql_executor_tool - INFO - Retrieved 13274 measurements from 20 profiles
+2025-09-21 09:13:03,770 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:13:03,794 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:13:03,795 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:13:03,795 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:13:03,795 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:13:27,630 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:13:27,630 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:13:27,630 - core.workflow_engine - INFO - XAI Log: {'session_id': 'session_1758426177', 'timestamp': '2025-09-21T09:13:27.630710', 'user_query': 'Show temperature profile visualization for Bay of Bengal with depth analysis', 'workflow_stages': ['planning', 'execution', 'synthesis'], 'execution_summary': {'total_duration': 30.046169, 'stages_completed': 3, 'success': True}, 'data_sources_used': ['ChromaDB', 'PostgreSQL', 'ARGO Float Database'], 'analysis_methods': ['Retrieve relevant ARGO profiles from vector database', 'Fetch detailed measurements for retrieved profiles', 'Calculate statistical summary of profiles'], 'key_findings': ['Analyzed 20 ARGO profiles', 'Consider generating visualizations for better data interpretation']}
+2025-09-21 09:13:27,630 - core.workflow_engine - INFO - Workflow completed successfully in 30.05 seconds
+2025-09-21 09:17:43,191 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:17:43,294 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:17:43,407 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:17:43,677 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:17:43,678 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:17:43,722 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:17:43,722 - core.workflow_engine - INFO - Processing query: 'Analyze temperature profiles in the Indian Ocean...' (Session: None)
+2025-09-21 09:17:43,722 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:17:49,439 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature'], 'regions': ['Indian Ocean'], 'time_period': '', 'analysis_type': 'profiles', 'output_format': 'table'}
+2025-09-21 09:17:49,439 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:17:49,439 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:17:49,439 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:17:49,439 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:17:49,440 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:17:49,440 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Indian Ocean'
+2025-09-21 09:17:49,619 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:17:49,620 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:17:49,719 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:17:50,133 - tools.sql_executor_tool - INFO - Retrieved 12925 measurements from 20 profiles
+2025-09-21 09:17:50,133 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:17:50,159 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:17:50,159 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:17:50,159 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:17:50,159 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:18:12,648 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:18:12,649 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:18:12,649 - core.workflow_engine - INFO - XAI Log: {'session_id': 'session_1758426463', 'timestamp': '2025-09-21T09:18:12.649165', 'user_query': 'Analyze temperature profiles in the Indian Ocean', 'workflow_stages': ['planning', 'execution', 'synthesis'], 'execution_summary': {'total_duration': 28.92659, 'stages_completed': 3, 'success': True}, 'data_sources_used': ['ChromaDB', 'PostgreSQL', 'ARGO Float Database'], 'analysis_methods': ['Retrieve relevant ARGO profiles from vector database', 'Fetch detailed measurements for retrieved profiles', 'Calculate statistical summary of profiles'], 'key_findings': ['Analyzed 20 ARGO profiles', 'Consider generating visualizations for better data interpretation']}
+2025-09-21 09:18:12,649 - core.workflow_engine - INFO - Workflow completed successfully in 28.93 seconds
+2025-09-21 09:27:58,557 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:27:58,644 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:27:58,743 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:27:58,918 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:27:58,919 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:27:58,968 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:28:14,481 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:28:14,568 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:28:14,673 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:28:14,824 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:28:14,826 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:28:14,858 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:28:14,858 - core.workflow_engine - INFO - Processing query: 'Show temperature vs depth plot for Arabian Sea profiles...' (Session: None)
+2025-09-21 09:28:14,859 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:28:23,151 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature', 'depth'], 'regions': ['Arabian Sea'], 'time_period': '', 'analysis_type': 'plot', 'output_format': 'visualization'}
+2025-09-21 09:28:23,151 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:28:23,151 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:28:23,151 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:28:23,151 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:28:23,151 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:28:23,151 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Arabian Sea'
+2025-09-21 09:28:26,448 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:28:26,448 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:28:26,667 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:28:27,479 - tools.sql_executor_tool - INFO - Retrieved 11859 measurements from 20 profiles
+2025-09-21 09:28:27,479 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:28:27,512 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:28:27,512 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:28:27,513 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:28:27,513 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:29:16,348 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:29:16,349 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:29:16,349 - core.workflow_engine - INFO - Stage 4: Visualization Generation
+2025-09-21 09:29:16,349 - core.workflow_engine - INFO - Starting plotting stage
+2025-09-21 09:29:16,349 - agents.plotting_agent - WARNING - No raw data available for plotting
+2025-09-21 09:29:16,349 - core.workflow_engine - INFO - Plotting stage completed in 0.00 seconds
+2025-09-21 09:29:16,349 - core.workflow_engine - INFO - No visualizations generated
+2025-09-21 09:29:16,350 - core.workflow_engine - INFO - XAI Log: {'session_id': 'session_1758427094', 'timestamp': '2025-09-21T09:29:16.349977', 'user_query': 'Show temperature vs depth plot for Arabian Sea profiles', 'workflow_stages': ['planning', 'execution', 'synthesis', 'plotting'], 'execution_summary': {'total_duration': 61.491008, 'stages_completed': 4, 'success': True}, 'data_sources_used': ['ChromaDB', 'PostgreSQL', 'ARGO Float Database'], 'analysis_methods': ['Retrieve relevant ARGO profiles from vector database', 'Fetch detailed measurements for retrieved profiles', 'Calculate statistical summary of profiles'], 'key_findings': ['Analyzed 20 ARGO profiles', 'Consider generating visualizations for better data interpretation']}
+2025-09-21 09:29:16,350 - core.workflow_engine - INFO - Workflow completed successfully in 61.49 seconds
+2025-09-21 09:31:27,744 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:31:27,845 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:31:27,990 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:31:28,171 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:31:28,175 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:31:28,270 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:31:28,270 - core.workflow_engine - INFO - Processing query: 'Create temperature vs depth visualization for Bay of Bengal profiles...' (Session: None)
+2025-09-21 09:31:28,270 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:31:35,325 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature', 'depth'], 'regions': ['Bay of Bengal'], 'time_period': '', 'analysis_type': 'visualization', 'output_format': 'plot'}
+2025-09-21 09:31:35,326 - agents.planner_agent - INFO - Generated execution plan with 4 steps
+2025-09-21 09:31:35,326 - core.workflow_engine - INFO - Planning completed: 4 steps generated
+2025-09-21 09:31:35,326 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:31:35,326 - agents.executor_agent - INFO - Starting execution of 4 steps
+2025-09-21 09:31:35,326 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:31:35,326 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Bay of Bengal'
+2025-09-21 09:31:35,906 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:31:35,906 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:31:36,023 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:31:36,676 - tools.sql_executor_tool - INFO - Retrieved 13274 measurements from 20 profiles
+2025-09-21 09:31:36,677 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:31:36,705 - agents.executor_agent - INFO - Executing step 4: Create visualization of the analysis results
+2025-09-21 09:31:37,954 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:31:37,954 - core.workflow_engine - INFO - Execution completed: 4/4 steps successful
+2025-09-21 09:31:37,954 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:31:37,954 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:32:40,414 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:32:40,415 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:32:40,415 - core.workflow_engine - INFO - Stage 4: Visualization Generation
+2025-09-21 09:32:40,415 - core.workflow_engine - INFO - Starting plotting stage
+2025-09-21 09:32:40,453 - agents.plotting_agent - INFO - Detected plot types: ['temperature_depth', 'comparison', 'ts_diagram', 'geographic']
+2025-09-21 09:32:40,877 - agents.plotting_agent - INFO - Generated 3 plots
+2025-09-21 09:32:40,878 - core.workflow_engine - INFO - Plotting stage completed in 0.46 seconds
+2025-09-21 09:32:40,878 - core.workflow_engine - INFO - Generated 3 visualizations
+2025-09-21 09:36:49,504 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:36:49,686 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:36:49,789 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:36:49,951 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:36:49,953 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:36:49,990 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:37:05,890 - __main__ - ERROR - Query processing failed: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+2025-09-21 09:37:05,890 - __main__ - ERROR - Traceback (most recent call last):
+  File "/Users/admin/Documents/SIH/agentic_workflow/streamlit_app.py", line 476, in process_query
+    results = st.session_state.workflow_engine.process_query(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+
+2025-09-21 09:37:12,279 - __main__ - ERROR - Query processing failed: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+2025-09-21 09:37:12,279 - __main__ - ERROR - Traceback (most recent call last):
+  File "/Users/admin/Documents/SIH/agentic_workflow/streamlit_app.py", line 476, in process_query
+    results = st.session_state.workflow_engine.process_query(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+
+2025-09-21 09:37:23,123 - __main__ - ERROR - Query processing failed: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+2025-09-21 09:37:23,124 - __main__ - ERROR - Traceback (most recent call last):
+  File "/Users/admin/Documents/SIH/agentic_workflow/streamlit_app.py", line 476, in process_query
+    results = st.session_state.workflow_engine.process_query(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+
+2025-09-21 09:37:48,279 - __main__ - ERROR - Query processing failed: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+2025-09-21 09:37:48,279 - __main__ - ERROR - Traceback (most recent call last):
+  File "/Users/admin/Documents/SIH/agentic_workflow/streamlit_app.py", line 476, in process_query
+    results = st.session_state.workflow_engine.process_query(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: WorkflowEngine.process_query() got an unexpected keyword argument 'query'
+
+2025-09-21 09:41:15,752 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:41:15,853 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:41:15,982 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:41:16,199 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:41:16,201 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:41:16,244 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:41:23,565 - core.workflow_engine - INFO - Processing query: 'Show temperature statistics for Bay of Bengal profiles...' (Session: None)
+2025-09-21 09:41:23,565 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:41:28,084 - core.workflow_engine - INFO - Processing query: 'Show temperature statistics for Bay of Bengal profiles...' (Session: None)
+2025-09-21 09:41:28,085 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:41:33,171 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature'], 'regions': ['Bay of Bengal', 'Arabian Sea', 'Indian Ocean', 'Southern Ocean'], 'time_period': '', 'analysis_type': 'statistics', 'output_format': 'table'}
+2025-09-21 09:41:33,171 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:41:33,171 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:41:33,171 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:41:33,172 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:41:33,172 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:41:33,172 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Bay of Bengal'
+2025-09-21 09:41:37,855 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['temperature'], 'regions': ['Bay of Bengal', 'Arabian Sea', 'Indian Ocean', 'Southern Ocean'], 'time_period': '', 'analysis_type': 'statistics', 'output_format': 'table'}
+2025-09-21 09:41:37,856 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:41:37,856 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:41:37,856 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:41:37,856 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:41:37,856 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:41:37,857 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Bay of Bengal'
+2025-09-21 09:41:38,007 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:41:38,007 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:41:38,083 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:41:38,083 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:41:38,151 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:41:38,191 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:41:39,164 - tools.sql_executor_tool - INFO - Retrieved 13274 measurements from 20 profiles
+2025-09-21 09:41:39,168 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:41:39,168 - tools.sql_executor_tool - INFO - Retrieved 13274 measurements from 20 profiles
+2025-09-21 09:41:39,169 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:41:39,219 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:41:39,220 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:41:39,221 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:41:39,221 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:41:39,221 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:41:39,221 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:41:39,221 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:41:39,221 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:42:10,480 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:42:10,481 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:42:10,481 - core.workflow_engine - INFO - Stage 4: Visualization Generation
+2025-09-21 09:42:10,481 - core.workflow_engine - INFO - Starting plotting stage
+2025-09-21 09:42:10,529 - agents.plotting_agent - INFO - Detected plot types: ['temperature_depth', 'statistical', 'ts_diagram', 'geographic']
+2025-09-21 09:42:10,943 - agents.plotting_agent - INFO - Generated 4 plots
+2025-09-21 09:42:10,944 - core.workflow_engine - INFO - Plotting stage completed in 0.46 seconds
+2025-09-21 09:42:10,944 - core.workflow_engine - INFO - Generated 4 visualizations
+2025-09-21 09:42:37,613 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:42:37,614 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:42:37,614 - core.workflow_engine - INFO - Stage 4: Visualization Generation
+2025-09-21 09:42:37,614 - core.workflow_engine - INFO - Starting plotting stage
+2025-09-21 09:42:37,647 - agents.plotting_agent - INFO - Detected plot types: ['temperature_depth', 'statistical', 'ts_diagram', 'geographic']
+2025-09-21 09:42:37,800 - agents.plotting_agent - INFO - Generated 4 plots
+2025-09-21 09:42:37,801 - core.workflow_engine - INFO - Plotting stage completed in 0.19 seconds
+2025-09-21 09:42:37,801 - core.workflow_engine - INFO - Generated 4 visualizations
+2025-09-21 09:46:07,901 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-09-21 09:46:07,990 - tools.retriever_tool - INFO - Connected to ChromaDB collection: argo_profiles_ollama
+2025-09-21 09:46:08,087 - tools.retriever_tool - INFO - Collection contains 4922 profiles
+2025-09-21 09:46:08,255 - tools.sql_executor_tool - INFO - Connected to PostgreSQL database
+2025-09-21 09:46:08,257 - core.workflow_engine - INFO - Validating system connections...
+2025-09-21 09:46:08,281 - core.workflow_engine - INFO - All services are available and ready
+2025-09-21 09:46:16,634 - core.workflow_engine - INFO - Processing query: 'Compare temperature variations between Pacific and Atlantic profiles...' (Session: None)
+2025-09-21 09:46:16,634 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:46:22,589 - agents.planner_agent - INFO - Parsed query: {'intent': 'compare', 'variables': ['temperature'], 'regions': ['Pacific', 'Atlantic'], 'time_period': '', 'analysis_type': 'profiles', 'output_format': 'table'}
+2025-09-21 09:46:22,589 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:46:22,589 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:46:22,589 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:46:22,589 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:46:22,589 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:46:22,590 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Pacific'
+2025-09-21 09:46:23,045 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:46:23,046 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:46:23,175 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:46:23,926 - tools.sql_executor_tool - INFO - Retrieved 12196 measurements from 20 profiles
+2025-09-21 09:46:23,926 - agents.executor_agent - INFO - Executing step 3: Compare oceanographic properties between regions
+2025-09-21 09:46:23,982 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:46:23,982 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:46:23,982 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:46:23,982 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:47:19,143 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:47:19,143 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:47:19,143 - core.workflow_engine - INFO - Stage 4: Visualization Generation
+2025-09-21 09:47:19,143 - core.workflow_engine - INFO - Starting plotting stage
+2025-09-21 09:47:19,201 - agents.plotting_agent - INFO - Detected plot types: ['temperature_depth', 'comparison', 'ts_diagram', 'geographic']
+2025-09-21 09:47:19,437 - agents.plotting_agent - INFO - Generated 3 plots
+2025-09-21 09:47:19,437 - core.workflow_engine - INFO - Plotting stage completed in 0.29 seconds
+2025-09-21 09:47:19,437 - core.workflow_engine - INFO - Generated 3 visualizations
+2025-09-21 09:49:04,317 - choreographer.browsers.chromium - INFO - Chromium init'ed with kwargs {}
+2025-09-21 09:49:04,327 - choreographer.browsers.chromium - INFO - Found chromium path: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+2025-09-21 09:49:04,327 - choreographer.utils._tmpfile - INFO - Temp directory created: /var/folders/4c/shvq_jmx04l39fv0_1fhz4q00000gn/T/tmpenosk_gs.
+2025-09-21 09:49:04,329 - choreographer.browser_async - INFO - Opening browser.
+2025-09-21 09:49:04,329 - choreographer.utils._tmpfile - INFO - Temp directory created: /var/folders/4c/shvq_jmx04l39fv0_1fhz4q00000gn/T/tmp11y9pdpu.
+2025-09-21 09:49:04,329 - choreographer.browsers.chromium - INFO - Temporary directory at: /var/folders/4c/shvq_jmx04l39fv0_1fhz4q00000gn/T/tmp11y9pdpu
+2025-09-21 09:49:06,494 - kaleido.kaleido - INFO - Conforming 1 to file:///var/folders/4c/shvq_jmx04l39fv0_1fhz4q00000gn/T/tmpenosk_gs/index.html
+2025-09-21 09:49:06,499 - kaleido.kaleido - INFO - Waiting on all navigates
+2025-09-21 09:49:08,411 - kaleido.kaleido - INFO - All navigates done, putting them all in queue.
+2025-09-21 09:49:08,412 - kaleido.kaleido - INFO - Getting tab from queue (has 1)
+2025-09-21 09:49:08,412 - kaleido.kaleido - INFO - Got D2C6
+2025-09-21 09:49:08,413 - kaleido._kaleido_tab - INFO - Processing Geographic_Distribution_of_Profiles.png
+2025-09-21 09:49:08,413 - kaleido._kaleido_tab - INFO - Sending big command for Geographic_Distribution_of_Profiles.png.
+2025-09-21 09:49:11,111 - kaleido._kaleido_tab - INFO - Sent big command for Geographic_Distribution_of_Profiles.png.
+2025-09-21 09:49:11,118 - kaleido.kaleido - INFO - Reloading tab D2C6 before return.
+2025-09-21 09:49:11,831 - kaleido.kaleido - INFO - Putting tab D2C6 back (queue size: 0).
+2025-09-21 09:49:11,832 - kaleido.kaleido - INFO - Waiting for all cleanups to finish.
+2025-09-21 09:49:11,832 - kaleido.kaleido - INFO - Exiting Kaleido
+2025-09-21 09:49:11,832 - choreographer.browser_async - INFO - Closing browser.
+2025-09-21 09:49:11,849 - choreographer.browser_async - INFO - Closing browser.
+2025-09-21 09:49:11,851 - choreographer.utils._tmpfile - INFO - TemporaryDirectory.cleanup() worked.
+2025-09-21 09:49:11,851 - choreographer.utils._tmpfile - INFO - shutil.rmtree worked.
+2025-09-21 09:49:11,852 - kaleido.kaleido - INFO - Cancelling tasks.
+2025-09-21 09:49:11,852 - kaleido.kaleido - INFO - Exiting Kaleido/Choreo
+2025-09-21 09:49:12,146 - choreographer.utils._tmpfile - INFO - TemporaryDirectory.cleanup() worked.
+2025-09-21 09:49:12,147 - choreographer.utils._tmpfile - INFO - shutil.rmtree worked.
+2025-09-21 09:49:12,147 - choreographer.utils._tmpfile - INFO - TemporaryDirectory.cleanup() worked.
+2025-09-21 09:49:12,147 - choreographer.utils._tmpfile - INFO - shutil.rmtree worked.
+2025-09-21 09:49:12,147 - kaleido.kaleido - INFO - Cancelling tasks.
+2025-09-21 09:49:12,147 - kaleido.kaleido - INFO - Exiting Kaleido/Choreo
+2025-09-21 09:49:12,320 - choreographer.utils._tmpfile - INFO - TemporaryDirectory.cleanup() worked.
+2025-09-21 09:49:12,320 - choreographer.utils._tmpfile - INFO - shutil.rmtree worked.
+2025-09-21 09:50:12,635 - core.workflow_engine - INFO - Processing query: 'Show me profiles from regions with high salinity....' (Session: None)
+2025-09-21 09:50:12,636 - core.workflow_engine - INFO - Stage 1: Query Planning
+2025-09-21 09:50:21,542 - agents.planner_agent - INFO - Parsed query: {'intent': 'analyze', 'variables': ['salinity'], 'regions': ['Bay of Bengal', 'Arabian Sea', 'Indian Ocean', 'Southern Ocean'], 'time_period': '', 'analysis_type': 'profiles', 'output_format': 'table'}
+2025-09-21 09:50:21,542 - agents.planner_agent - INFO - Generated execution plan with 3 steps
+2025-09-21 09:50:21,542 - core.workflow_engine - INFO - Planning completed: 3 steps generated
+2025-09-21 09:50:21,543 - core.workflow_engine - INFO - Stage 2: Plan Execution
+2025-09-21 09:50:21,543 - agents.executor_agent - INFO - Starting execution of 3 steps
+2025-09-21 09:50:21,547 - agents.executor_agent - INFO - Executing step 1: Retrieve relevant ARGO profiles from vector database
+2025-09-21 09:50:21,547 - tools.retriever_tool - INFO - Retrieving profiles for query: 'ARGO profiles in the Bay of Bengal'
+2025-09-21 09:50:22,470 - tools.retriever_tool - INFO - Retrieved 20 profiles
+2025-09-21 09:50:22,470 - agents.executor_agent - INFO - Executing step 2: Fetch detailed measurements for retrieved profiles
+2025-09-21 09:50:22,485 - tools.sql_executor_tool - INFO - Retrieved metadata for 20 profiles
+2025-09-21 09:50:23,458 - tools.sql_executor_tool - INFO - Retrieved 13274 measurements from 20 profiles
+2025-09-21 09:50:23,458 - agents.executor_agent - INFO - Executing step 3: Calculate statistical summary of profiles
+2025-09-21 09:50:23,482 - agents.executor_agent - INFO - Execution plan completed
+2025-09-21 09:50:23,482 - core.workflow_engine - INFO - Execution completed: 3/3 steps successful
+2025-09-21 09:50:23,482 - core.workflow_engine - INFO - Stage 3: Response Synthesis
+2025-09-21 09:50:23,482 - agents.synthesizer_agent - INFO - Synthesizing final response
+2025-09-21 09:51:31,376 - agents.synthesizer_agent - INFO - Response synthesis completed
+2025-09-21 09:51:31,376 - core.workflow_engine - INFO - Synthesis completed successfully
+2025-09-21 09:51:31,377 - core.workflow_engine - INFO - Stage 4: Visualization Generation
+2025-09-21 09:51:31,377 - core.workflow_engine - INFO - Starting plotting stage
+2025-09-21 09:51:31,410 - agents.plotting_agent - INFO - Detected plot types: ['temperature_depth', 'ts_diagram', 'geographic']
+2025-09-21 09:51:31,541 - agents.plotting_agent - INFO - Generated 3 plots
+2025-09-21 09:51:31,541 - core.workflow_engine - INFO - Plotting stage completed in 0.16 seconds
+2025-09-21 09:51:31,541 - core.workflow_engine - INFO - Generated 3 visualizations
