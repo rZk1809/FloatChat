@@ -11,7 +11,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org)
 [![SIH 2025](https://img.shields.io/badge/SIH-2025-orange.svg)](https://sih.gov.in)
 
-[🚀 Live Demo](#live-demo) · [📖 Docs](agentic_workflow/README.md) · [🐛 Issues](https://github.com/rZk1809/FloatChat/issues)
+[🚀 Live Demo](https://floatchat-rgk.vercel.app) · [📖 Docs](agentic_workflow/README.md) · [🐛 Issues](https://github.com/rZk1809/FloatChat/issues)
 
 </div>
 
@@ -186,6 +186,14 @@ streamlit run streamlit_app.py
 🌊 Plot T-S diagram and show water mass clusters
 🌊 Detect anomalous profiles in the dataset
 ```
+
+---
+
+## Live Demo
+
+**[floatchat-rgk.vercel.app](https://floatchat-rgk.vercel.app)** — Deployed on Vercel
+
+The chat demo requires an `ANTHROPIC_API_KEY` configured as a Vercel environment variable.
 
 ---
 
