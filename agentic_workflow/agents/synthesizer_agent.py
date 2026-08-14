@@ -9,7 +9,7 @@ import pandas as pd
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import requests
-from core.config import OLLAMA_CONFIG, SYSTEM_CONFIG
+from ..core.config import OLLAMA_CONFIG, SYSTEM_CONFIG
 
 logger = logging.getLogger(__name__)
 
