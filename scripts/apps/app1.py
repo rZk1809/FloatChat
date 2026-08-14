@@ -11,22 +11,24 @@ import logging
 from datetime import datetime
 import re
 import os
+from agentic_workflow.core.config import OLLAMA_CONFIG
 
 # --- Configuration ---
 # PostgreSQL Credentials (for fetching detailed data if needed for plots)
-DB_USER = "rgk"
-DB_PASSWORD = "rgk"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "argo_data"
+DB_USER = os.environ.get("PGUSER", "postgres")
+DB_PASSWORD = os.environ.get("PGPASSWORD", "")
+DB_HOST = os.environ.get("PGHOST", "localhost")
+DB_PORT = os.environ.get("PGPORT", "5432")
+DB_NAME = os.environ.get("PGDATABASE", "argo_data")
 # ChromaDB Configuration
-CHROMA_DB_PATH = "chroma_db"
-CHROMA_COLLECTION_NAME = "argo_profiles_ollama"
+CHROMA_DB_PATH = os.environ.get("CHROMA_DB_PATH", "chroma_db")
+CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION_NAME", "argo_profiles_ollama")
 # Ollama Configuration
-OLLAMA_CHAT_MODEL = "qwen3:8b"
-OLLAMA_EMBED_MODEL = "embeddinggemma:300m" # Used for query embedding if needed
-OLLAMA_URL = "http://localhost:11434/api/generate" # For chat/generate
-OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings" # For embeddings
+OLLAMA_CHAT_MODEL = OLLAMA_CONFIG.general_model
+OLLAMA_EMBED_MODEL = OLLAMA_CONFIG.embedding_model
+_OLLAMA_BASE_URL = OLLAMA_CONFIG.base_url
+OLLAMA_URL = f"{_OLLAMA_BASE_URL}/api/generate"  # For chat/generate
+OLLAMA_EMBED_URL = f"{_OLLAMA_BASE_URL}/api/embeddings"  # For embeddings
 
 # Configure logging (Streamlit handles this, but good practice)
 logging.basicConfig(level=logging.INFO)
@@ -35,32 +37,13 @@ logging.basicConfig(level=logging.INFO)
 
 @st.cache_resource
 def get_db_engine():
-    """Creates and caches the SQLAlchemy engine for PostgreSQL."""
-    try:
-        connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        engine = create_engine(connection_string)
-        # Test connection
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        logging.info("Successfully connected to PostgreSQL.")
-        return engine
-    except Exception as e:
-        st.error(f"Failed to connect to PostgreSQL: {e}")
-        logging.error(f"PostgreSQL connection error: {e}")
-        return None
+    """Legacy direct database access is disabled."""
+    return None
 
 @st.cache_resource
 def get_chroma_collection():
-    """Gets and caches the ChromaDB collection."""
-    try:
-        client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-        collection = client.get_collection(name=CHROMA_COLLECTION_NAME)
-        logging.info("Successfully connected to ChromaDB.")
-        return collection
-    except Exception as e:
-        st.error(f"Failed to connect to ChromaDB: {e}")
-        logging.error(f"ChromaDB connection error: {e}")
-        return None
+    """Legacy direct vector access is disabled."""
+    return None
 
 def get_embedding_from_ollama(text):
     """Gets an embedding for a text query from Ollama."""
@@ -84,11 +67,9 @@ def find_relevant_profiles(query_text, collection, n_results=5):
         # Option 2: Use Ollama embedding (potentially more consistent if used during ingestion)
         # Requires the embedding model used for ingestion
         query_embedding = get_embedding_from_ollama(query_text)
-        if query_embedding:
-            results = collection.query(query_embeddings=[query_embedding], n_results=n_results)
-        else:
-            # Fallback to Chroma's default
-            results = collection.query(query_texts=[query_text], n_results=n_results)
+        if not query_embedding:
+            return []
+        results = collection.query(query_embeddings=[query_embedding], n_results=n_results)
 
         if not results or not results['ids'][0]:
             return []
@@ -353,6 +334,7 @@ def execute_plot_action(plot_info, engine):
 st.set_page_config(page_title="OceanBot - ARGO RAG Chat", layout="wide")
 st.title("🤖 OceanBot: ARGO Data Chat Assistant")
 st.markdown("Ask questions about ARGO float data. I can retrieve information and generate plots!")
+st.info("This legacy UI is offline. Run the canonical Python API and Next.js client.")
 
 # Initialize session state
 if "messages" not in st.session_state:
@@ -443,7 +425,7 @@ with st.sidebar:
     st.write("**Data Source:**")
     st.write("- ChromaDB (`argo_profiles_ollama`)")
     st.write("- PostgreSQL (`argo_data`)")
-    st.write("**LLM:** Qwen3 8B (via Ollama)")
+    st.write("**LLM:** Exact local model configured by the canonical API")
     st.write("**Capabilities:**")
     st.write("- Natural language Q&A")
     st.write("- Context-aware responses")

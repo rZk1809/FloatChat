@@ -4,20 +4,21 @@ import pandas as pd
 import chromadb
 import requests
 import json
+import os
 from sqlalchemy import create_engine, text
 import logging
+from agentic_workflow.core.config import OLLAMA_CONFIG
 
 # --- Configuration ---
-DB_USER = "rgk"              # <-- use your actual creds
-DB_PASSWORD = "rgk"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "argo_data"
-CHROMA_COLLECTION_NAME = "argo_profiles"
-CHROMA_DB_PATH = "chroma_db"
-OLLAMA_URL = "http://localhost:11434/api/generate"
-# --- IMPORTANT: Use the exact name of your Ollama model ---
-OLLAMA_MODEL = "deepseek-r1:8b" 
+DB_USER = os.environ.get("PGUSER", "postgres")
+DB_PASSWORD = os.environ.get("PGPASSWORD", "")
+DB_HOST = os.environ.get("PGHOST", "localhost")
+DB_PORT = os.environ.get("PGPORT", "5432")
+DB_NAME = os.environ.get("PGDATABASE", "argo_data")
+CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION_NAME", "argo_profiles")
+CHROMA_DB_PATH = os.environ.get("CHROMA_DB_PATH", "chroma_db")
+OLLAMA_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434") + "/api/generate"
+OLLAMA_MODEL = OLLAMA_CONFIG.general_model
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,30 +26,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # --- Caching for Performance ---
 @st.cache_resource
 def get_db_engine():
-    try:
-        connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        engine = create_engine(connection_string)
-        logging.info("Successfully connected to PostgreSQL.")
-        return engine
-    except Exception as e:
-        st.error(f"Failed to connect to PostgreSQL: {e}")
-        logging.error(f"PostgreSQL connection error: {e}")
-        return None
+    """Legacy direct database access is disabled."""
+    return None
 
 @st.cache_resource
 def get_chroma_collection():
-    """Gets the ChromaDB collection. Note: Relies on Chroma's configured embedding function for queries."""
-    try:
-        # PersistentClient connects to the local Chroma DB
-        client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-        # Get the existing collection
-        collection = client.get_collection(name=CHROMA_COLLECTION_NAME)
-        logging.info("Successfully connected to ChromaDB.")
-        return collection
-    except Exception as e:
-        st.error(f"Failed to connect to ChromaDB: {e}")
-        logging.error(f"ChromaDB connection error: {e}")
-        return None
+    """Legacy direct vector access is disabled."""
+    return None
 
 # --- Core RAG Functions ---
 def find_relevant_profiles(query, collection, n_results=10):
@@ -161,6 +145,7 @@ st.set_page_config(layout="wide", page_title="OceanAI Explorer")
 
 st.title("🌊 OceanAI Explorer (with Local LLM)")
 st.markdown("Ask a question in natural language to query the ARGO float database.")
+st.info("This legacy UI is offline. Run the canonical Python API and Next.js client.")
 
 # Load resources (using cached functions)
 engine = get_db_engine()

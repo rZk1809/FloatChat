@@ -1,4 +1,6 @@
 import logging
+import os
+from pathlib import Path
 import chromadb
 import pandas as pd
 from sqlalchemy import create_engine
@@ -6,14 +8,17 @@ from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
 # --- Configuration ---
-DB_USER = "rgk"
-DB_PASSWORD = "rgk"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "argo_data"
+DB_USER = os.environ.get("PGUSER", "postgres")
+DB_PASSWORD = os.environ.get("PGPASSWORD", "")
+DB_HOST = os.environ.get("PGHOST", "localhost")
+DB_PORT = os.environ.get("PGPORT", "5432")
+DB_NAME = os.environ.get("PGDATABASE", "argo_data")
 
 # Name for the collection in ChromaDB
-CHROMA_COLLECTION_NAME = "argo_profiles"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION", "argo_profiles_v2")
+CHROMA_PATH = Path(os.environ.get("CHROMA_PATH", PROJECT_ROOT / "chroma_v2")).resolve()
+EMBED_MODEL_PATH = os.environ.get("LOCAL_EMBED_MODEL_PATH", "")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,6 +29,16 @@ def main():
     and populate a ChromaDB vector store.
     """
     logging.info("--- Starting Vector Database Population ---")
+
+    if not EMBED_MODEL_PATH or not Path(EMBED_MODEL_PATH).is_dir():
+        logging.error("LOCAL_EMBED_MODEL_PATH must point to an already-installed model.")
+        return
+    if CHROMA_PATH == (PROJECT_ROOT / "chroma_db").resolve() or CHROMA_COLLECTION_NAME in {
+        "argo_profiles",
+        "argo_profiles_ollama",
+    }:
+        logging.error("Refusing to write to a legacy path or collection.")
+        return
 
     # --- 1. Connect to PostgreSQL and fetch all profile data ---
     try:
@@ -71,7 +86,7 @@ def main():
     # --- 3. Initialize the AI model to create embeddings ---
     # 'all-MiniLM-L6-v2' is a small but powerful model, great for getting started.
     logging.info("Loading sentence-transformer model (this may take a moment)...")
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    model = SentenceTransformer(EMBED_MODEL_PATH, local_files_only=True)
     logging.info("Model loaded successfully.")
 
     # --- 4. Create the vector embeddings ---
@@ -81,12 +96,18 @@ def main():
 
     # --- 5. Setup ChromaDB and store the embeddings ---
     try:
-        # Using a persistent client to save the DB to a local folder named 'chroma_db'
-        client = chromadb.PersistentClient(path="chroma_db")
+        client = chromadb.PersistentClient(path=str(CHROMA_PATH))
         
-        # Create the collection. If it already exists, we can use it.
-        # get_or_create_collection is helpful to avoid errors on subsequent runs.
-        collection = client.get_or_create_collection(name=CHROMA_COLLECTION_NAME)
+        try:
+            client.get_collection(name=CHROMA_COLLECTION_NAME)
+            logging.error("Target collection already exists; refusing to mix embeddings.")
+            return
+        except Exception:
+            pass
+        collection = client.create_collection(
+            name=CHROMA_COLLECTION_NAME,
+            metadata={"embedding_model": str(Path(EMBED_MODEL_PATH).resolve()), "schema_version": "2"},
+        )
 
         # Prepare metadata and IDs for ChromaDB
         metadatas = df[['wmo_id', 'profile_id', 'latitude', 'longitude']].to_dict('records')

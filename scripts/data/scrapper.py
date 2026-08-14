@@ -1,5 +1,7 @@
 import os
 import requests
+import tempfile
+from pathlib import Path
 from tqdm import tqdm
 from datetime import datetime
 from html.parser import HTMLParser
@@ -7,14 +9,9 @@ from html.parser import HTMLParser
 # --- Configuration ---
 BASE_URL = "https://nrlgodae1.nrlmry.navy.mil/ftp/outgoing/argo/geo/indian_ocean/"
 YEARS_TO_DOWNLOAD = [2025] # Example: Downloading 2024 data
-LOCAL_DATA_DIR = "DATASET"
-
-# --- Disable SSL warnings if verification is disabled ---
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-# Note: verify=False disables SSL certificate verification.
-# This is sometimes necessary for certain servers but is less secure.
-# Consider updating certificates if possible for production use.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+LOCAL_DATA_DIR = Path(os.environ.get("ARGO_NC_DIR", PROJECT_ROOT / "DATASET")).resolve()
+MAX_DOWNLOAD_BYTES = 200 * 1024 * 1024
 
 # --- HTML Parser to find links on the FTP index pages ---
 class LinkParser(HTMLParser):
@@ -31,8 +28,7 @@ class LinkParser(HTMLParser):
 def get_links(url):
     """Fetches a URL and returns all href links found on the page."""
     try:
-        # Disable SSL verification
-        response = requests.get(url, verify=False)
+        response = requests.get(url, timeout=(5, 30))
         response.raise_for_status()  # Raises an exception for bad status codes
         parser = LinkParser()
         parser.feed(response.text)
@@ -43,25 +39,40 @@ def get_links(url):
 
 def download_file(url, local_path):
     """Downloads a file with a progress bar."""
+    destination = Path(local_path).resolve()
+    if destination.parent != LOCAL_DATA_DIR or destination.exists():
+        raise ValueError("Download target must be a new file inside ARGO_NC_DIR")
+    temp_name = None
     try:
-        # Disable SSL verification
-        response = requests.get(url, stream=True, verify=False)
+        response = requests.get(url, stream=True, timeout=(5, 30))
         response.raise_for_status()
         total_size = int(response.headers.get('content-length', 0))
+        if total_size > MAX_DOWNLOAD_BYTES:
+            raise ValueError("Remote file exceeds the configured size limit")
 
-        with open(local_path, 'wb') as f, tqdm(
-            desc=os.path.basename(local_path),
+        received = 0
+        with tempfile.NamedTemporaryFile(dir=LOCAL_DATA_DIR, suffix=".part", delete=False) as f, tqdm(
+            desc=destination.name,
             total=total_size,
             unit='iB',
             unit_scale=True,
             unit_divisor=1024,
         ) as bar:
+            temp_name = f.name
             for data in response.iter_content(chunk_size=1024):
+                received += len(data)
+                if received > MAX_DOWNLOAD_BYTES:
+                    raise ValueError("Download exceeded the configured size limit")
                 size = f.write(data)
                 bar.update(size)
-        print(f"Downloaded: {local_path}")
+        os.link(f.name, destination)
+        os.unlink(f.name)
+        print(f"Downloaded: {destination}")
     except requests.exceptions.RequestException as e:
         print(f"Failed to download {url}: {e}")
+    finally:
+        if temp_name:
+            Path(temp_name).unlink(missing_ok=True)
 
 def visualize_argo_locations(file_path):
     """Visualize ARGO float locations from a NetCDF file."""
@@ -161,7 +172,10 @@ def main():
 
             file_links = get_links(month_url)
             # Filter for the profile NetCDF files
-            nc_files = [f for f in file_links if f.endswith('_prof.nc')]
+            nc_files = [
+                f for f in file_links
+                if f.endswith('_prof.nc') and Path(f).name == f
+            ]
 
             if not nc_files:
                 print(f"    No profile files found for {year}-{month_str}.")

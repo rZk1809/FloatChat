@@ -5,15 +5,18 @@ from tqdm import tqdm
 import logging
 import requests
 import json
+import os
+from pathlib import Path
 
 # --- Configuration ---
-CSV_FILE_PATH = "argo_data_export.csv"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CSV_FILE_PATH = os.environ.get("ARGO_CSV_PATH", str(PROJECT_ROOT / "argo_data_export.csv"))
 # ChromaDB Configuration
-CHROMA_DB_PATH = "chroma_db"
-CHROMA_COLLECTION_NAME = "argo_profiles_ollama"
+CHROMA_DB_PATH = os.environ.get("CHROMA_PATH", str(PROJECT_ROOT / "chroma_v2"))
+CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION", "argo_profiles_v2")
 # Ollama Embedding Model Configuration
-OLLAMA_EMBED_MODEL = "embeddinggemma:300m" # As requested
-OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings"
+OLLAMA_EMBED_MODEL = os.environ.get("OLLAMA_EMBED_MODEL", "")
+OLLAMA_EMBED_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/") + "/api/embeddings"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -31,6 +34,19 @@ def get_embedding_from_ollama(doc):
 
 def main():
     """Main function to load CSV and populate ChromaDB using Ollama."""
+
+    if not OLLAMA_EMBED_MODEL:
+        logging.error("OLLAMA_EMBED_MODEL must be an exact verified installed tag.")
+        return
+
+    target_path = Path(CHROMA_DB_PATH).expanduser().resolve()
+    legacy_path = (PROJECT_ROOT / "chroma_db").resolve()
+    if target_path == legacy_path or CHROMA_COLLECTION_NAME in {
+        "argo_profiles",
+        "argo_profiles_ollama",
+    }:
+        logging.error("Refusing to write to a legacy path or collection.")
+        return
 
     logging.info(f"Loading data from '{CSV_FILE_PATH}'...")
     # Load the CSV
@@ -112,15 +128,17 @@ def main():
     logging.info(f"Generated {len(ids)} embeddings. Connecting to ChromaDB...")
     client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
 
-    # Delete the collection if it exists
     try:
-        client.delete_collection(name=CHROMA_COLLECTION_NAME)
-        logging.info(f"Existing Chroma collection '{CHROMA_COLLECTION_NAME}' deleted.")
-    except Exception as e:
-        logging.info(f"No existing Chroma collection '{CHROMA_COLLECTION_NAME}' to delete or deletion failed: {e}")
+        client.get_collection(name=CHROMA_COLLECTION_NAME)
+        logging.error("Target collection already exists; refusing to overwrite it.")
+        return
+    except Exception:
+        pass
 
-    # Create the new collection
-    collection = client.create_collection(name=CHROMA_COLLECTION_NAME)
+    collection = client.create_collection(
+        name=CHROMA_COLLECTION_NAME,
+        metadata={"embedding_model": OLLAMA_EMBED_MODEL, "schema_version": "2"},
+    )
     logging.info(f"Created new Chroma collection '{CHROMA_COLLECTION_NAME}'.")
 
     # Add embeddings to ChromaDB in batches
