@@ -1,6 +1,3 @@
-"""Core components of the Agentic AI RAG Workflow System."""
+"""Core components, intentionally free of eager submodule imports."""
 
-from .config import config, Config
-from .workflow_engine import WorkflowEngine
-
-__all__ = ["config", "Config", "WorkflowEngine"]
+__all__: list[str] = []

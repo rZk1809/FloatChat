@@ -6,12 +6,11 @@ Orchestrates the interaction between planner, executor, and synthesizer agents.
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime
-import traceback
-from agents.planner_agent import PlannerAgent
-from agents.executor_agent import ExecutorAgent
-from agents.synthesizer_agent import SynthesizerAgent
-from agents.plotting_agent import PlottingAgent
-from core.config import config
+from ..agents.planner_agent import PlannerAgent
+from ..agents.executor_agent import ExecutorAgent
+from ..agents.synthesizer_agent import SynthesizerAgent
+from ..agents.plotting_agent import PlottingAgent
+from .config import config
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +27,6 @@ class WorkflowEngine:
         # Workflow state
         self.current_session = None
         self.workflow_history = []
-
-        # Validate system connections
-        self._validate_system()
     
     def _validate_system(self):
         """Validate that all required services are available."""
@@ -67,18 +63,15 @@ class WorkflowEngine:
             Complete response with analysis results and explanations
         """
         workflow_start_time = datetime.now()
+        workflow_session = {
+            "session_id": session_id or f"session_{int(workflow_start_time.timestamp())}",
+            "start_time": workflow_start_time,
+            "stages": {},
+            "errors": [],
+        }
         
         try:
-            logger.info(f"Processing query: '{user_query[:100]}...' (Session: {session_id})")
-            
-            # Initialize workflow session
-            workflow_session = {
-                "session_id": session_id or f"session_{int(workflow_start_time.timestamp())}",
-                "user_query": user_query,
-                "start_time": workflow_start_time,
-                "stages": {},
-                "errors": []
-            }
+            logger.info("Processing request (session=%s)", workflow_session["session_id"])
             
             self.current_session = workflow_session
             
@@ -148,22 +141,19 @@ class WorkflowEngine:
                 "workflow_metadata": final_response.get("workflow_metadata", {})
             }
 
-            return streamlit_response
-            
             # Store in history
             self.workflow_history.append(workflow_session)
-            
+
             # XAI Logging
             if enable_xai_logging or (enable_xai_logging is None and config.system.enable_xai_logging):
                 self._log_xai_information(workflow_session, final_response)
-            
+
             logger.info(f"Workflow completed successfully in {workflow_session['duration']:.2f} seconds")
             return streamlit_response
-            
+
         except Exception as e:
-            logger.error(f"Workflow processing failed: {e}")
-            logger.error(traceback.format_exc())
-            return self._handle_workflow_error("Workflow processing failed", workflow_session, str(e))
+            logger.error("Workflow processing failed (%s)", type(e).__name__)
+            return self._handle_workflow_error("Workflow processing failed", workflow_session)
     
     def _execute_planning_stage(self, user_query: str, workflow_session: Dict[str, Any]) -> Dict[str, Any]:
         """Execute the planning stage."""
@@ -281,7 +271,6 @@ class WorkflowEngine:
         return {
             "error": error_message,
             "detailed_error": detailed_error,
-            "user_query": workflow_session.get("user_query"),
             "session_id": workflow_session.get("session_id"),
             "workflow_metadata": {
                 "success": False,
@@ -308,7 +297,6 @@ class WorkflowEngine:
             xai_log = {
                 "session_id": workflow_session["session_id"],
                 "timestamp": datetime.now().isoformat(),
-                "user_query": workflow_session["user_query"],
                 "workflow_stages": list(workflow_session["stages"].keys()),
                 "execution_summary": {
                     "total_duration": workflow_session.get("duration", 0),
@@ -385,8 +373,7 @@ class WorkflowEngine:
             }
 
         except Exception as e:
-            logger.error(f"Plotting stage failed: {e}")
-            logger.error(traceback.format_exc())
+            logger.error("Plotting stage failed (%s)", type(e).__name__)
 
             # Record stage failure
             stage_duration = (datetime.now() - stage_start_time).total_seconds()
