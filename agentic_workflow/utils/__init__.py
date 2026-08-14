@@ -1,5 +1,3 @@
-"""Utility components for the Agentic AI RAG Workflow System."""
+"""Utility components, intentionally free of eager logging setup."""
 
-from .logger import XAILogger, StructuredLogger, xai_logger, get_structured_logger
-
-__all__ = ["XAILogger", "StructuredLogger", "xai_logger", "get_structured_logger"]
+__all__: list[str] = []

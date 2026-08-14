@@ -23,9 +23,11 @@ class AnalyzerTool:
                                   temperature: np.ndarray, 
                                   salinity: np.ndarray, 
                                   pressure: np.ndarray,
-                                  reference_pressure: float = 0.0) -> np.ndarray:
+                                  reference_pressure: float = 0.0,
+                                  longitude: Optional[np.ndarray] = None,
+                                  latitude: Optional[np.ndarray] = None) -> np.ndarray:
         """
-        Calculate potential density using simplified seawater equation of state.
+        Calculate potential density with the TEOS-10 Gibbs SeaWater library.
         
         Args:
             temperature: Temperature in Celsius
@@ -36,34 +38,23 @@ class AnalyzerTool:
         Returns:
             Potential density in kg/m³
         """
-        try:
-            # Simplified UNESCO equation of state for seawater
-            # This is a basic approximation - for precise work, use gsw library
-            
-            T = np.asarray(temperature)
-            S = np.asarray(salinity)
-            P = np.asarray(pressure)
-            
-            # Basic density calculation (simplified)
-            rho0 = 1000.0  # Reference density
-            
-            # Temperature effect
-            alpha = 2e-4  # Thermal expansion coefficient
-            rho_T = rho0 * (1 - alpha * (T - 0))
-            
-            # Salinity effect
-            beta = 7.6e-4  # Haline contraction coefficient
-            rho_TS = rho_T * (1 + beta * (S - 35))
-            
-            # Pressure effect (simplified)
-            kappa = 4.5e-5  # Compressibility
-            rho_TSP = rho_TS * (1 + kappa * P)
-            
-            return rho_TSP
-            
-        except Exception as e:
-            logger.error(f"Failed to calculate potential density: {e}")
-            return np.array([])
+        if longitude is None or latitude is None:
+            raise ValueError("longitude and latitude are required for TEOS-10 density")
+
+        import gsw
+
+        temperature = np.asarray(temperature, dtype=float)
+        salinity = np.asarray(salinity, dtype=float)
+        pressure = np.asarray(pressure, dtype=float)
+        longitude = np.broadcast_to(np.asarray(longitude, dtype=float), temperature.shape)
+        latitude = np.broadcast_to(np.asarray(latitude, dtype=float), temperature.shape)
+        absolute_salinity = gsw.SA_from_SP(salinity, pressure, longitude, latitude)
+        return gsw.pot_rho_t_exact(
+            absolute_salinity,
+            temperature,
+            pressure,
+            float(reference_pressure),
+        )
     
     def calculate_mixed_layer_depth(self, 
                                    temperature: np.ndarray, 
@@ -146,11 +137,13 @@ class AnalyzerTool:
             }
             
             # Calculate potential density statistics
-            if len(df) > 0:
+            if len(df) > 0 and {"longitude", "latitude"}.issubset(df.columns):
                 pot_density = self.calculate_potential_density(
                     df['temp'].values, 
                     df['psal'].values, 
-                    df['pressure'].values
+                    df['pressure'].values,
+                    longitude=df['longitude'].values,
+                    latitude=df['latitude'].values,
                 )
                 
                 if len(pot_density) > 0:
@@ -160,6 +153,11 @@ class AnalyzerTool:
                         "mean": float(np.nanmean(pot_density)),
                         "std": float(np.nanstd(pot_density))
                     }
+            else:
+                stats_dict["potential_density"] = {
+                    "status": "unavailable",
+                    "reason": "TEOS-10 density requires longitude and latitude",
+                }
             
             return stats_dict
             
@@ -252,6 +250,9 @@ class AnalyzerTool:
             Dictionary with comparison results
         """
         try:
+            if region1_df is region2_df:
+                raise ValueError("Region comparison inputs must be independent datasets")
+
             comparison = {
                 "regions": {
                     region1_name: self.calculate_profile_statistics(region1_df),
@@ -260,34 +261,64 @@ class AnalyzerTool:
                 "differences": {}
             }
             
-            # Calculate statistical differences
+            names = {region1_name, region2_name}
+            if "Indian Ocean" in names and names & {"Bay of Bengal", "Arabian Sea"}:
+                comparison["warning"] = (
+                    "The requested regions overlap hierarchically; inferential "
+                    "significance is not reported."
+                )
+                return comparison
+
+            # Treat profiles, not correlated depth rows, as sampling units.
             if not region1_df.empty and not region2_df.empty:
+                group_columns = ['wmo_id', 'cycle_number']
+                if not set(group_columns).issubset(region1_df.columns) or not set(
+                    group_columns
+                ).issubset(region2_df.columns):
+                    comparison["warning"] = (
+                        "Profile identifiers are required for independent-sample comparison."
+                    )
+                    return comparison
+                region1_profiles = region1_df.groupby(group_columns)[['temp', 'psal']].mean()
+                region2_profiles = region2_df.groupby(group_columns)[['temp', 'psal']].mean()
+                if len(region1_profiles) < 2 or len(region2_profiles) < 2:
+                    comparison["warning"] = (
+                        "At least two independent profiles per region are required."
+                    )
+                    return comparison
+
                 # Temperature comparison
                 temp_ttest = stats.ttest_ind(
-                    region1_df['temp'].dropna(), 
-                    region2_df['temp'].dropna()
+                    region1_profiles['temp'].dropna(),
+                    region2_profiles['temp'].dropna(),
+                    equal_var=False,
                 )
                 
                 # Salinity comparison
                 sal_ttest = stats.ttest_ind(
-                    region1_df['psal'].dropna(), 
-                    region2_df['psal'].dropna()
+                    region1_profiles['psal'].dropna(),
+                    region2_profiles['psal'].dropna(),
+                    equal_var=False,
                 )
                 
                 comparison["differences"] = {
                     "temperature": {
-                        "mean_diff": float(region1_df['temp'].mean() - region2_df['temp'].mean()),
+                        "mean_diff": float(region1_profiles['temp'].mean() - region2_profiles['temp'].mean()),
                         "t_statistic": float(temp_ttest.statistic),
                         "p_value": float(temp_ttest.pvalue),
                         "significant": temp_ttest.pvalue < 0.05
                     },
                     "salinity": {
-                        "mean_diff": float(region1_df['psal'].mean() - region2_df['psal'].mean()),
+                        "mean_diff": float(region1_profiles['psal'].mean() - region2_profiles['psal'].mean()),
                         "t_statistic": float(sal_ttest.statistic),
                         "p_value": float(sal_ttest.pvalue),
                         "significant": sal_ttest.pvalue < 0.05
                     }
                 }
+                comparison["limitations"] = [
+                    "Welch tests use one vertically averaged value per profile.",
+                    "Depth-matched and season-matched analyses are required for scientific claims.",
+                ]
             
             return comparison
             

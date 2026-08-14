@@ -6,17 +6,17 @@ Provides XAI (Explainable AI) logging capabilities and structured logging.
 import logging
 import json
 import os
+import hashlib
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
-import traceback
 
 @dataclass
 class XAILogEntry:
     """Structured log entry for explainable AI tracking."""
     timestamp: str
     session_id: str
-    user_query: str
+    query_digest: str
     workflow_stage: str
     action: str
     data_sources: List[str]
@@ -31,20 +31,17 @@ class XAILogger:
         self.log_file = log_file
         self.logger = logging.getLogger("XAI")
         self.logger.setLevel(logging.INFO)
-        
-        # Create file handler for XAI logs
-        if not self.logger.handlers:
-            handler = logging.FileHandler(log_file)
-            formatter = logging.Formatter('%(asctime)s - XAI - %(message)s')
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
+
+    @staticmethod
+    def _query_digest(user_query: str) -> str:
+        return hashlib.sha256(user_query.encode("utf-8")).hexdigest()[:16]
     
     def log_workflow_start(self, session_id: str, user_query: str, metadata: Optional[Dict[str, Any]] = None):
         """Log the start of a workflow."""
         entry = XAILogEntry(
             timestamp=datetime.now().isoformat(),
             session_id=session_id,
-            user_query=user_query,
+            query_digest=self._query_digest(user_query),
             workflow_stage="initialization",
             action="workflow_start",
             data_sources=[],
@@ -63,7 +60,7 @@ class XAILogger:
         entry = XAILogEntry(
             timestamp=datetime.now().isoformat(),
             session_id=session_id,
-            user_query=user_query,
+            query_digest=self._query_digest(user_query),
             workflow_stage="planning",
             action="plan_generation",
             data_sources=["query_parser", "execution_planner"],
@@ -84,7 +81,7 @@ class XAILogger:
         entry = XAILogEntry(
             timestamp=datetime.now().isoformat(),
             session_id=session_id,
-            user_query=user_query,
+            query_digest=self._query_digest(user_query),
             workflow_stage="execution",
             action=f"data_access_{action}",
             data_sources=[data_source],
@@ -104,7 +101,7 @@ class XAILogger:
         entry = XAILogEntry(
             timestamp=datetime.now().isoformat(),
             session_id=session_id,
-            user_query=user_query,
+            query_digest=self._query_digest(user_query),
             workflow_stage="execution",
             action=f"analysis_{analysis_type}",
             data_sources=["analyzer_tool"],
@@ -125,7 +122,7 @@ class XAILogger:
         entry = XAILogEntry(
             timestamp=datetime.now().isoformat(),
             session_id=session_id,
-            user_query=user_query,
+            query_digest=self._query_digest(user_query),
             workflow_stage="synthesis",
             action="response_generation",
             data_sources=["synthesizer_agent", "ollama_llm"],
@@ -140,21 +137,19 @@ class XAILogger:
     def log_error(self, session_id: str, user_query: str, 
                   stage: str, error: Exception, context: Optional[Dict[str, Any]] = None):
         """Log errors with context."""
-        reasoning = f"Error in {stage}: {str(error)}"
+        reasoning = f"Error in {stage}: {type(error).__name__}"
         
         entry = XAILogEntry(
             timestamp=datetime.now().isoformat(),
             session_id=session_id,
-            user_query=user_query,
+            query_digest=self._query_digest(user_query),
             workflow_stage=stage,
             action="error",
             data_sources=[],
             reasoning=reasoning,
             metadata={
                 "error_type": type(error).__name__,
-                "error_message": str(error),
-                "traceback": traceback.format_exc(),
-                "context": context
+                "context_keys": sorted(context) if context else []
             }
         )
         self._write_entry(entry)
@@ -196,7 +191,6 @@ class StructuredLogger:
     
     def __init__(self, name: str):
         self.logger = logging.getLogger(name)
-        self.xai_logger = XAILogger()
     
     def log_with_context(self, level: str, message: str, 
                         session_id: Optional[str] = None,
@@ -233,10 +227,7 @@ class StructuredLogger:
         """Log debug message with context."""
         self.log_with_context("debug", message, **kwargs)
 
-# Global XAI logger instance
-xai_logger = XAILogger()
-
-def setup_logging(log_level: str = "INFO", log_file: str = "agentic_workflow.log"):
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None):
     """
     Initialize root logging for the application. Safe to call multiple times.
     Configures both console and file handlers and sets the desired log level.
@@ -258,17 +249,14 @@ def setup_logging(log_level: str = "INFO", log_file: str = "agentic_workflow.log
     console_handler.setFormatter(formatter)
     root_logger.addHandler(console_handler)
 
-    try:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-    except Exception:
-        # Continue without file logging if it fails
-        root_logger.warning("Failed to attach file handler for logging", exc_info=True)
-
-    # Ensure XAI logger exists (it manages its own handler deduplication)
-    _ = xai_logger
+    if log_file:
+        try:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setLevel(level)
+            file_handler.setFormatter(formatter)
+            root_logger.addHandler(file_handler)
+        except Exception:
+            root_logger.warning("Failed to attach file handler for logging")
 
 
 def get_structured_logger(name: str) -> StructuredLogger:

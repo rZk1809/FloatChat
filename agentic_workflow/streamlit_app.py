@@ -23,6 +23,10 @@ from reportlab.lib.units import inch
 import zipfile
 import tempfile
 import os
+import sys
+
+# Add the repository root to the path so `agentic_workflow` resolves as a package
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure page
 st.set_page_config(
@@ -34,9 +38,9 @@ st.set_page_config(
 
 # Import workflow components
 try:
-    from core.workflow_engine import WorkflowEngine
-    from core.config import config
-    from utils.logger import setup_logging
+    from agentic_workflow.core.workflow_engine import WorkflowEngine
+    from agentic_workflow.core.config import config
+    from agentic_workflow.utils.logger import setup_logging
 except ImportError as e:
     st.error(f"Failed to import workflow components: {e}")
     st.stop()

@@ -7,27 +7,20 @@ import sys
 import os
 import argparse
 import json
-import logging
 from typing import Dict, Any, Optional
 from datetime import datetime
 
-# Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add the repository root to the path so `agentic_workflow` resolves as a package
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.workflow_engine import WorkflowEngine
-from core.config import config
-from ui.cli_interface import CLIInterface
+from agentic_workflow.core.workflow_engine import WorkflowEngine
+from agentic_workflow.core.config import config
+from agentic_workflow.ui.cli_interface import CLIInterface
+from agentic_workflow.utils.logger import setup_logging as configure_logging
 
 def setup_logging(log_level: str = "INFO"):
-    """Setup application logging."""
-    logging.basicConfig(
-        level=getattr(logging, log_level.upper()),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler('agentic_workflow.log')
-        ]
-    )
+    """Set up console logging without writing request-bearing local files."""
+    configure_logging(log_level)
 
 def print_system_info():
     """Print system information and status."""
