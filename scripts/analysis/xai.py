@@ -13,17 +13,20 @@ from plotly.subplots import make_subplots
 
 # --- Configuration ---
 # Database and Model Settings
-DB_USER = "rgk"
-DB_PASSWORD = "rgk"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "argo_data"
-CHROMA_DB_PATH = "chroma_db"
-CHROMA_COLLECTION_NAME = "argo_profiles_ollama"
-OLLAMA_EMBED_MODEL = "embeddinggemma:300m"
-OLLAMA_QA_MODEL = "qwen2:1.5b"
-OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings"
-OLLAMA_GENERATE_URL = "http://localhost:11434/api/generate"
+import os
+
+DB_USER = os.environ.get("PGUSER", "postgres")
+DB_PASSWORD = os.environ.get("PGPASSWORD", "")
+DB_HOST = os.environ.get("PGHOST", "localhost")
+DB_PORT = os.environ.get("PGPORT", "5432")
+DB_NAME = os.environ.get("PGDATABASE", "argo_data")
+CHROMA_DB_PATH = os.environ.get("CHROMA_DB_PATH", "chroma_db")
+CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION_NAME", "argo_profiles_ollama")
+OLLAMA_EMBED_MODEL = os.environ.get("OLLAMA_EMBED_MODEL", "")
+OLLAMA_QA_MODEL = os.environ.get("OLLAMA_CHAT_MODEL", "")
+_OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_EMBED_URL = f"{_OLLAMA_BASE_URL}/api/embeddings"
+OLLAMA_GENERATE_URL = f"{_OLLAMA_BASE_URL}/api/generate"
 MAX_CONTEXT_LENGTH = 2000
 
 def is_oceanographic_query(query):
@@ -129,22 +132,13 @@ class XAIDecisionTrail:
 # --- Caching for Performance ---
 @st.cache_resource
 def get_db_engine():
-    try:
-        engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
-        return engine
-    except Exception as e:
-        st.error(f"Failed to connect to PostgreSQL: {e}")
-        return None
+    """Legacy database access is intentionally disabled."""
+    return None
 
 @st.cache_resource
 def get_chroma_collection():
-    try:
-        client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-        collection = client.get_collection(name=CHROMA_COLLECTION_NAME)
-        return collection
-    except Exception as e:
-        st.error(f"Failed to connect to ChromaDB: {e}")
-        return None
+    """Legacy live-store access is intentionally disabled."""
+    return None
 
 # --- Enhanced XAI Functions ---
 def get_embedding_from_ollama(doc, model_name, trail=None):
@@ -226,127 +220,29 @@ def analyze_sql_complexity(sql_query):
     return complexity_indicators, total_complexity
 
 def generate_sql_from_query(query, context_docs, trail=None):
-    """Enhanced SQL generation with complexity analysis and confidence scoring."""
-    if trail:
-        trail.add_reasoning("sql_generation_approach", 
-                          "Using LLM-based text-to-SQL conversion with oceanographic context",
-                          f"Context documents: {len(context_docs.split()) if context_docs else 0} tokens")
-    
-    prompt = f"""
-    You are an expert PostgreSQL data analyst. Your task is to convert a user's question into a precise SQL query based on the provided database schema and context.
-    
-    Database Schema:
-    - profiles (id, float_id, cycle_number, profile_date, location)
-    - floats (id, wmo_id)
-    - measurements (profile_id, pressure, temp, psal)
-    
-    Context from similar profiles:
-    {context_docs}
-    
-    User's Question: "{query}"
-    
-    Based on this, generate the best possible SQL query to answer the question. The location is a GEOGRAPHY type.
-    IMPORTANT: Only output the raw SQL query. Do not include any explanation, markdown, or any other text.
+    """Refuse the retired free-form text-to-SQL path.
+
+    The canonical API converts user input into validated filters and executes
+    trusted query templates. A model-generated SQL string must never cross the
+    database boundary.
     """
-    
-    payload = {"model": OLLAMA_QA_MODEL, "prompt": prompt, "stream": False}
-    try:
-        response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-        response.raise_for_status()
-        sql_query = response.json().get("response", "").strip()
-        
-        # Clean up and fix SQL schema issues
-        if sql_query.startswith("```sql"):
-            sql_query = sql_query[6:]
-        if sql_query.endswith("```"):
-            sql_query = sql_query[:-3]
-        sql_query = sql_query.strip()
-        
-        # Apply schema fixes
-        sql_query = fix_sql_schema(sql_query)
-        
-        # Analyze SQL complexity for XAI
-        if trail:
-            complexity_indicators, total_complexity = analyze_sql_complexity(sql_query)
-            confidence = max(0.3, 1.0 - (total_complexity * 0.1))  # Lower confidence for complex queries
-            
-            trail.add_step("sql_generation", 
-                          f"Generated SQL query with complexity score: {total_complexity}",
-                          {"query_length": len(sql_query), "complexity": complexity_indicators},
-                          confidence=confidence)
-            
-            trail.add_assumption(f"SQL query accurately represents user intent",
-                               f"Complexity indicators: {complexity_indicators}")
-        
-        return sql_query
-    except Exception as e:
-        if trail:
-            trail.add_step("sql_generation_error", f"Failed to generate SQL: {e}", confidence=0.0)
-        logging.error(f"Text-to-SQL generation failed: {e}")
-        return f"-- Error generating SQL: {e}"
+    if trail:
+        trail.add_step(
+            "sql_generation_blocked",
+            "Free-form text-to-SQL is disabled; use the canonical API",
+            confidence=1.0,
+        )
+    return None
 
 def execute_sql_query(sql_query, engine, trail=None):
-    """Enhanced SQL execution with detailed result analysis."""
-    if engine is None or not sql_query or sql_query.startswith("-- Error"):
-        return None, "Could not execute the query.", {}
-    
-    try:
-        if trail:
-            trail.add_step("sql_execution", "Executing generated SQL query against database")
-        
-        with engine.connect() as conn:
-            df = pd.read_sql(text(sql_query), conn)
-        
-        # Analyze results for XAI
-        result_stats = {
-            "row_count": len(df),
-            "column_count": len(df.columns) if not df.empty else 0,
-            "columns": list(df.columns) if not df.empty else [],
-            "data_types": df.dtypes.to_dict() if not df.empty else {},
-            "null_counts": df.isnull().sum().to_dict() if not df.empty else {},
-            "memory_usage": df.memory_usage(deep=True).sum() if not df.empty else 0
-        }
-        
-        if trail:
-            if df.empty:
-                trail.add_step("query_result", "Query executed but returned no data", 
-                              result_stats, confidence=0.5)
-                trail.add_reasoning("empty_result", 
-                                  "No data found matching query criteria",
-                                  "This could indicate: overly restrictive filters, no data in date range, or incorrect assumptions")
-            else:
-                data_quality_score = 1.0 - (sum(result_stats["null_counts"].values()) / 
-                                           (result_stats["row_count"] * result_stats["column_count"]))
-                trail.add_step("query_result", 
-                              f"Successfully retrieved {result_stats['row_count']} rows", 
-                              result_stats, 
-                              confidence=min(data_quality_score, 0.95))
-        
-        if df.empty:
-            return None, "The query ran successfully but returned no data.", result_stats
-            
-        # Create enhanced summary for final answer
-        summary = f"""Query Result Summary:
-Rows returned: {len(df)}
-Columns: {', '.join(df.columns)}
-
-Data Preview:
-{df.head(10).to_string(index=False)}
-
-Statistical Summary:
-{df.describe().to_string() if len(df.select_dtypes(include=[np.number]).columns) > 0 else "No numeric columns for statistical summary"}
-"""
-        
-        return df, summary, result_stats
-        
-    except Exception as e:
-        if trail:
-            trail.add_step("sql_execution_error", f"SQL execution failed: {e}", confidence=0.0)
-            trail.add_reasoning("execution_failure", 
-                              f"Database error: {str(e)}", 
-                              "This could indicate: syntax error, missing tables/columns, or permission issues")
-        logging.error(f"SQL execution failed for query '{sql_query}': {e}")
-        return None, f"The generated SQL query failed to execute. Error: {e}", {}
+    """Never execute SQL supplied as text by a model or caller."""
+    if trail:
+        trail.add_step(
+            "sql_execution_blocked",
+            "Arbitrary SQL execution is disabled; use trusted query templates",
+            confidence=1.0,
+        )
+    return None, "This legacy text-to-SQL interface is disabled.", {}
 
 def generate_final_answer(query, context_summary, trail=None):
     """Enhanced answer generation with confidence tracking."""
@@ -528,8 +424,9 @@ with st.sidebar:
     
     st.divider()
     st.subheader("📊 System Status")
-    engine = get_db_engine()
-    collection = get_chroma_collection()
+    engine = None
+    collection = None
+    st.caption("Legacy data access is disabled. Use the canonical Python API.")
     
     db_status = "✅ Connected" if engine else "❌ Disconnected"
     vector_status = "✅ Connected" if collection else "❌ Disconnected"

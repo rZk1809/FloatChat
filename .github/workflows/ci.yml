@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "refactor/**", "feat/**", "fix/**"]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ───────────────────────────────────────────────
+  # Web (Next.js) — lint, typecheck, tests, build
+  # ───────────────────────────────────────────────
+  web:
+    name: Web (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    strategy:
+      matrix:
+        node: ["20"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+  # ───────────────────────────────────────────────
+  # Python backend — lint, type-check, tests
+  # ───────────────────────────────────────────────
+  python:
+    name: Python (${{ matrix.python }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]" --quiet
+
+      - name: Lint with ruff
+        run: ruff check agentic_workflow/ tests/ --output-format=github
+
+      - name: Type-check with mypy
+        run: mypy agentic_workflow/ --ignore-missing-imports
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short
+        env:
+          # Provide dummy env vars so config loads without real services
+          POSTGRES_HOST: localhost
+          POSTGRES_PASSWORD: ""
+          OLLAMA_BASE_URL: http://localhost:11434
+          CHROMA_PATH: /tmp/chroma_test

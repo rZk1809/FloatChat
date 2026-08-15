@@ -11,11 +11,11 @@ from typing import Dict, Any, Optional
 import logging
 from datetime import datetime
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the repository root to the path so `agentic_workflow` resolves as a package
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from core.workflow_engine import WorkflowEngine
-from core.config import config
+from agentic_workflow.core.workflow_engine import WorkflowEngine
+from agentic_workflow.core.config import config
 
 class CLIInterface:
     """Command line interface for the agentic workflow system."""

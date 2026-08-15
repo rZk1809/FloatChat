@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 const SYSTEM_PROMPT = `You are FloatChat, an expert AI assistant for oceanographic data analysis. You specialize in ARGO float data — autonomous profiling floats that drift through ocean currents, measuring temperature, salinity, and pressure from surface to 2000m depth.
 
@@ -30,9 +31,143 @@ Sample statistics from the dataset:
 
 Be helpful, scientifically accurate, and engaging. Keep responses concise but informative. Use markdown formatting when helpful.`;
 
+// ---------------------------------------------------------------------------
+// Request validation
+// ---------------------------------------------------------------------------
+
+const MAX_MESSAGES = 20;
+const MAX_CONTENT_LENGTH = 4000;
+
+const chatMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z
+    .string()
+    .min(1, "Message content cannot be empty")
+    .max(
+      MAX_CONTENT_LENGTH,
+      `Message content cannot exceed ${MAX_CONTENT_LENGTH} characters`
+    ),
+});
+
+const chatRequestSchema = z.object({
+  messages: z
+    .array(chatMessageSchema)
+    .min(1, "messages must be a non-empty array")
+    .max(MAX_MESSAGES, `messages cannot contain more than ${MAX_MESSAGES} entries`),
+});
+
+// ---------------------------------------------------------------------------
+// Rate limiting
+//
+// This is a simple in-memory, per-process, IP-keyed sliding-window limiter.
+// It is intentionally minimal — good enough to stop naive abuse of this demo
+// endpoint (e.g. a script hammering it directly, bypassing the client-side
+// `.slice(-10)` guard) — but it has real limitations callers should know
+// about before relying on it in production:
+//
+//   - State lives in a plain in-memory Map, so it resets on every
+//     redeploy/restart.
+//   - On a platform that runs multiple serverless/edge instances (e.g.
+//     Vercel), each instance has its own independent counters, so the
+//     *effective* limit is (per-instance limit) × (number of warm
+//     instances), not a true global limit.
+//
+// A real deployment that needs robust rate limiting should move this to a
+// shared store — e.g. Upstash Redis (via @upstash/ratelimit) — or rely on
+// Vercel's platform-level rate limiting / firewall rules instead.
+// ---------------------------------------------------------------------------
+
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 20;
+
+interface RateLimitEntry {
+  count: number;
+  windowStart: number;
+}
+
+const rateLimitStore = new Map<string, RateLimitEntry>();
+
+let requestsSinceCleanup = 0;
+
+/** Opportunistically evict expired entries so the Map doesn't grow forever. */
+function cleanupExpiredEntries(now: number) {
+  rateLimitStore.forEach((entry, key) => {
+    if (now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+      rateLimitStore.delete(key);
+    }
+  });
+}
+
+function checkRateLimit(key: string): { allowed: boolean; retryAfterSeconds: number } {
+  const now = Date.now();
+
+  requestsSinceCleanup += 1;
+  if (requestsSinceCleanup >= 100) {
+    requestsSinceCleanup = 0;
+    cleanupExpiredEntries(now);
+  }
+
+  const entry = rateLimitStore.get(key);
+
+  if (!entry || now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    rateLimitStore.set(key, { count: 1, windowStart: now });
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil((entry.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000)
+    );
+    return { allowed: false, retryAfterSeconds };
+  }
+
+  entry.count += 1;
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+
+function getClientKey(req: NextRequest): string {
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0]?.trim() || "unknown";
+  }
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp;
+  if (req.ip) return req.ip;
+  return "unknown";
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = await req.json();
+    const clientKey = getClientKey(req);
+    const rateLimit = checkRateLimit(clientKey);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment before trying again." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+        }
+      );
+    }
+
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Request body must be valid JSON." },
+        { status: 400 }
+      );
+    }
+
+    const parsed = chatRequestSchema.safeParse(body);
+    if (!parsed.success) {
+      const message = parsed.error.issues[0]?.message ?? "Invalid request body.";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+
+    const { messages } = parsed.data;
 
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
@@ -52,8 +187,8 @@ export async function POST(req: NextRequest) {
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
-      messages: messages.map((m: { role: string; content: string }) => ({
-        role: m.role as "user" | "assistant",
+      messages: messages.map((m) => ({
+        role: m.role,
         content: m.content,
       })),
     });

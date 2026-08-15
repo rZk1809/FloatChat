@@ -6,14 +6,19 @@ using retrieval-augmented generation and multi-agent workflows.
 """
 
 __version__ = "1.0.0"
-__author__ = "Agentic AI Team"
 __description__ = "Intelligent ARGO Float Data Analysis System"
 
-from .core.workflow_engine import WorkflowEngine
-from .core.config import config
+__all__ = ["WorkflowEngine", "config"]
 
-# Main exports
-__all__ = [
-    "WorkflowEngine",
-    "config"
-]
+
+def __getattr__(name: str):
+    """Load public objects lazily so importing the package has no service effects."""
+    if name == "WorkflowEngine":
+        from .core.workflow_engine import WorkflowEngine
+
+        return WorkflowEngine
+    if name == "config":
+        from .core.config import config
+
+        return config
+    raise AttributeError(name)

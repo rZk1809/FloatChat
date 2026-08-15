@@ -1,21 +1,19 @@
 import os
 import glob
 import logging
+import argparse
+from pathlib import Path
 import pandas as pd
 import xarray as xr
 import numpy as np  # <-- Added numpy for checking data types
 from sqlalchemy import create_engine, text
 from tqdm import tqdm
+from agentic_workflow.core.config import DATABASE_CONFIG, PROJECT_ROOT
 
 # --- Configuration ---
-DB_USER = "rgk"
-DB_PASSWORD = "rgk"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "argo_data"
-
-
-NC_FILES_DIRECTORY = "DATASET"
+NC_FILES_DIRECTORY = str(
+    Path(os.environ.get("ARGO_NC_DIR", PROJECT_ROOT / "DATASET")).expanduser().resolve()
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -23,8 +21,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def connect_to_db():
     """Creates and returns a SQLAlchemy engine for connecting to the PostgreSQL database."""
     try:
-        connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        engine = create_engine(connection_string)
+        engine = create_engine(DATABASE_CONFIG.connection_string)
         with engine.connect() as connection:
             logging.info("Successfully connected to the PostgreSQL database.")
         return engine
@@ -107,7 +104,8 @@ def process_profile(profile_data):
         df.dropna(subset=['pressure'], inplace=True)
         if df.empty: return None
 
-        good_qc_flags = ['1', '2', '5', '8']
+        # Strict science path: accept only good/probably-good ARGO values.
+        good_qc_flags = ['1', '2']
         df.loc[~df['temp_qc'].isin(good_qc_flags), 'temp'] = None
         df.loc[~df['psal_qc'].isin(good_qc_flags), 'psal'] = None
         
@@ -142,10 +140,14 @@ def load_to_postgres(engine, processed_data):
                 insert_result = connection.execute(text("INSERT INTO floats (wmo_id, last_seen) VALUES (:wmo_id, NOW()) RETURNING id"), {'wmo_id': wmo_id})
                 float_id = insert_result.fetchone()[0]
 
-            location_point = f"ST_SetSRID(ST_MakePoint({metadata['lon']}, {metadata['lat']}), 4326)::geography"
-            profile_sql = text(f"""
+            profile_sql = text("""
                 INSERT INTO profiles (float_id, cycle_number, profile_date, location)
-                VALUES (:float_id, :cycle_number, :profile_date, {location_point})
+                VALUES (
+                    :float_id,
+                    :cycle_number,
+                    :profile_date,
+                    ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography
+                )
                 ON CONFLICT (float_id, cycle_number) DO NOTHING
                 RETURNING id
             """)
@@ -153,7 +155,9 @@ def load_to_postgres(engine, processed_data):
             profile_result = connection.execute(profile_sql, {
                 'float_id': float_id,
                 'cycle_number': metadata['cycle_number'],
-                'profile_date': metadata['profile_date']
+                'profile_date': metadata['profile_date'],
+                'longitude': metadata['lon'],
+                'latitude': metadata['lat'],
             })
             profile_row = profile_result.fetchone()
             
@@ -185,9 +189,14 @@ def generate_vector_summary(metadata, profile_id):
     logging.debug(f"Generated Vector Summary: {summary}")
     return summary
 
-def main():
+def main(apply_changes: bool = False):
     """Main function to orchestrate the data ingestion pipeline for a whole directory."""
     logging.info("--- Starting ARGO Batch Ingestion Pipeline ---")
+
+    if not apply_changes:
+        file_count = len(glob.glob(os.path.join(NC_FILES_DIRECTORY, '*_prof.nc')))
+        logging.info("Dry run: %s NetCDF files discovered; no database connection made.", file_count)
+        return
     
     engine = connect_to_db()
     if not engine:
@@ -232,5 +241,12 @@ def main():
     logging.info(f"Failed or skipped: {total_profiles_failed} profiles.")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Ingest ARGO NetCDF profiles")
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Explicitly enable writes to the configured owner-approved database",
+    )
+    args = parser.parse_args()
+    main(apply_changes=args.apply)
 

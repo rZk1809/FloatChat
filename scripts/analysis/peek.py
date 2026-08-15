@@ -1,18 +1,18 @@
 import logging
+import os
 import pandas as pd
 import chromadb
 from sqlalchemy import create_engine
+from agentic_workflow.core.config import DATABASE_CONFIG
 
 # --- Configuration ---
-# Updated to match your PostgreSQL setup
-DB_USER = "rgk"
-DB_PASSWORD = "rgk"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "argo_data"
-# Updated to match your new ChromaDB collection
-CHROMA_COLLECTION_NAME = "argo_profiles_ollama"
-CHROMA_DB_PATH = "chroma_db"
+DB_USER = os.environ.get("PGUSER", "postgres")
+DB_PASSWORD = os.environ.get("PGPASSWORD", "")
+DB_HOST = os.environ.get("PGHOST", "localhost")
+DB_PORT = os.environ.get("PGPORT", "5432")
+DB_NAME = os.environ.get("PGDATABASE", "argo_data")
+CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION_NAME", "argo_profiles_ollama")
+CHROMA_DB_PATH = os.environ.get("CHROMA_DB_PATH", "chroma_db")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -21,8 +21,10 @@ def inspect_postgres():
     """Connects to PostgreSQL and prints sample data from each table."""
     logging.info("--- Inspecting PostgreSQL Database ---")
     try:
-        connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        engine = create_engine(connection_string)
+        engine = create_engine(
+            DATABASE_CONFIG.connection_string,
+            connect_args=DATABASE_CONFIG.connect_args,
+        )
         
         print("\n[+] Querying 'floats' table (first 5 rows):")
         df_floats = pd.read_sql("SELECT * FROM floats LIMIT 5;", engine)
@@ -41,36 +43,10 @@ def inspect_postgres():
         logging.error(f"Failed to inspect PostgreSQL: {e}")
 
 def inspect_chromadb():
-    """Connects to ChromaDB and prints a sample of the stored data."""
-    logging.info("\n--- Inspecting ChromaDB Vector Store ---")
-    try:
-        client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-        collection = client.get_collection(name=CHROMA_COLLECTION_NAME)
-        
-        logging.info(f"Collection '{CHROMA_COLLECTION_NAME}' contains {collection.count()} entries.")
-        
-        # .peek() is the standard way to get a small sample from a Chroma collection
-        sample = collection.peek(limit=5)
-        
-        print("\n[+] Peeking at 5 items from the ChromaDB collection:")
-        
-        # Nicely format the output
-        for i in range(len(sample['ids'])):
-            print(f"\n--- Item {i+1} ---")
-            print(f"  ID: {sample['ids'][i]}")
-            # Distance is only present in query results, not in peek
-            # print(f"  Distance: {sample.get('distances', 'N/A')[i]}") 
-            print(f"  Metadata: {sample['metadatas'][i]}")
-            print(f"  Document: \"{sample['documents'][i]}\"")
-            # Embeddings are very long arrays, so we'll just show the first few dimensions
-            embedding_preview = sample['embeddings'][i][:5]
-            print(f"  Embedding (first 5 dims): {embedding_preview}...")
-
-    except Exception as e:
-        logging.error(f"Failed to inspect ChromaDB: {e}")
+    """Fail closed: live Chroma inspection is intentionally unsupported."""
+    logging.error("Inspect Chroma only through the checksummed-copy verifier.")
 
 
 if __name__ == "__main__":
     inspect_postgres()
-    inspect_chromadb()
 

@@ -2,34 +2,36 @@
 import pandas as pd
 from sqlalchemy import create_engine, text
 import logging
+import argparse
+from pathlib import Path
+
+from agentic_workflow.core.config import DATABASE_CONFIG, PROJECT_ROOT
 
 # --- Configuration ---
-DB_USER = "rgk"
-DB_PASSWORD = "rgk"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "argo_data"
-OUTPUT_TEXT_FILE = "argo_data_dump.txt"
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def connect_to_db():
     """Creates and returns a SQLAlchemy engine for connecting to the PostgreSQL database."""
     try:
-        connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        engine = create_engine(connection_string)
+        engine = create_engine(
+            DATABASE_CONFIG.connection_string,
+            connect_args=DATABASE_CONFIG.connect_args,
+        )
         # Test the connection
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
         logging.info("Successfully connected to the PostgreSQL database.")
         return engine
-    except Exception as e:
-        logging.error(f"Failed to connect to the database: {e}")
+    except Exception as exc:
+        logging.error("Failed to connect to the database (%s)", type(exc).__name__)
         return None
 
 def dump_data(engine, output_file):
     """Dumps data from PostgreSQL tables to a text file."""
+    output_path = Path(output_file).expanduser().resolve()
+    if output_path.exists():
+        raise FileExistsError("Refusing to overwrite an existing export")
     try:
         logging.info("Starting data dump...")
 
@@ -138,7 +140,7 @@ def dump_data(engine, output_file):
     except Exception as e:
         logging.error(f"An error occurred during the data dump: {e}", exc_info=True)
 
-def main():
+def main(output_file: str):
     """Main function to orchestrate the data dumping process."""
     logging.info("--- Starting PostgreSQL Data Dump to Text File ---")
     
@@ -147,8 +149,11 @@ def main():
         logging.error("Exiting due to database connection failure.")
         return
 
-    dump_data(engine, OUTPUT_TEXT_FILE)
+    dump_data(engine, output_file)
     logging.info("--- Data Dump Process Finished ---")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Export read-only ARGO data to a new file")
+    parser.add_argument("--output", required=True, help="New output path; existing files are refused")
+    args = parser.parse_args()
+    main(args.output)

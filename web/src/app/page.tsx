@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   Github,
@@ -16,8 +15,12 @@ import {
   Globe,
   TrendingUp,
   Shield,
+  HelpCircle,
+  BookOpen,
+  Info,
 } from "lucide-react";
 import ChatDemo from "@/components/ChatDemo";
+import GallerySection from "@/components/GallerySection";
 
 const PLOTS = [
   { file: "ts_diagram_clusters.png", title: "T-S Diagram with Clusters", category: "Clustering" },
@@ -139,11 +142,14 @@ export default function Home() {
             <a href="#demo" className="hover:text-cyan-400 transition-colors">Live Demo</a>
             <a href="#visualizations" className="hover:text-cyan-400 transition-colors">Visualizations</a>
             <a href="#architecture" className="hover:text-cyan-400 transition-colors">Architecture</a>
+            <Link href="/about" className="hover:text-cyan-400 transition-colors">About</Link>
+            <Link href="/docs" className="hover:text-cyan-400 transition-colors">API Docs</Link>
           </div>
           <a
             href="https://github.com/rZk1809/FloatChat"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="GitHub"
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-ocean-700 border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
           >
             <Github size={16} />
@@ -319,42 +325,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Category filters */}
-          <div className="flex flex-wrap gap-2 justify-center mb-8">
-            {["All", "Clustering", "Analysis", "ML", "XAI"].map((cat) => (
-              <span
-                key={cat}
-                className="px-3 py-1.5 rounded-full text-xs border border-cyan-500/15 text-slate-400 bg-ocean-800/50 cursor-default"
-              >
-                {cat}
-              </span>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {PLOTS.map(({ file, title, category }) => (
-              <div
-                key={file}
-                className="plot-card glass rounded-xl overflow-hidden border border-cyan-500/10 group"
-              >
-                <div className="aspect-[4/3] overflow-hidden bg-ocean-800/50">
-                  <Image
-                    src={`/plots/${file}`}
-                    alt={title}
-                    width={400}
-                    height={300}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="text-xs text-cyan-400/70 mb-1">{category}</div>
-                  <p className="text-xs text-slate-300 font-medium leading-tight">
-                    {title}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <GallerySection plots={PLOTS} />
         </div>
       </section>
 
@@ -515,6 +486,66 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 mb-4">
+              <HelpCircle size={12} />
+              FAQ
+            </div>
+            <h2 className="text-4xl font-black text-white mb-4">
+              Frequently Asked{" "}
+              <span className="gradient-text">Questions</span>
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: "What is an ARGO float?",
+                a: "ARGO floats are autonomous profiling instruments deployed throughout the world's oceans. They drift at depth (typically ~1000m), then dive to 2000m and rise to the surface, measuring temperature, salinity, and pressure along the way. Data is transmitted via satellite.",
+              },
+              {
+                q: "Can I query the real ARGO database through the live demo?",
+                a: "The live demo on this website uses Claude AI to answer questions about FloatChat and ocean science. To run actual ARGO data queries (retrieving profiles, running ML models, generating plots), you need to deploy FloatChat locally with PostgreSQL, ChromaDB, and Ollama — see the GitHub repo for instructions.",
+              },
+              {
+                q: "What oceanographic regions does FloatChat cover?",
+                a: "FloatChat analyzes 4,922 ARGO profiles from the Bay of Bengal (5-25°N, 80-100°E), Arabian Sea (5-25°N, 60-80°E), broader Indian Ocean, and Southern Ocean. These regions are critical for Indian monsoon prediction and climate science.",
+              },
+              {
+                q: "How does the multi-agent pipeline work?",
+                a: "Your query goes through four agents: (1) Planner — parses intent and generates an execution plan; (2) Executor — runs tools (ChromaDB search, PostgreSQL queries, analysis); (3) Synthesizer — generates a natural language summary via Ollama; (4) Plotting Agent — creates visualizations if needed.",
+              },
+              {
+                q: "What ML models are included?",
+                a: "FloatChat includes XGBoost for temperature prediction (R²=0.97), K-Means clustering for water mass detection (k=4 optimal, silhouette=0.71), Isolation Forest for anomaly detection, ARIMA/SARIMA for time-series forecasting, and SHAP/PDP for explainability.",
+              },
+              {
+                q: "Is the code open source?",
+                a: "Yes! FloatChat is released under the MIT License. The full source code including the multi-agent pipeline, ML models, Next.js web app, and data ingestion scripts is available on GitHub.",
+              },
+            ].map(({ q, a }) => (
+              <details
+                key={q}
+                className="group glass rounded-xl border border-cyan-500/10 overflow-hidden"
+              >
+                <summary className="flex items-center justify-between px-5 py-4 cursor-pointer list-none hover:bg-ocean-700/20 transition-colors">
+                  <span className="font-semibold text-white text-sm pr-4">{q}</span>
+                  <ChevronDown
+                    size={16}
+                    className="text-cyan-400 flex-shrink-0 transition-transform duration-200 group-open:rotate-180"
+                  />
+                </summary>
+                <div className="px-5 pb-4">
+                  <p className="text-slate-400 text-sm leading-relaxed">{a}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-16 px-6 border-t border-cyan-500/8">
         <div className="max-w-7xl mx-auto">
@@ -535,21 +566,35 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-col items-center gap-4">
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-3 justify-center">
                 <a
                   href="https://github.com/rZk1809/FloatChat"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg glass border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg glass border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
                 >
-                  <Github size={16} />
+                  <Github size={15} />
                   GitHub
                 </a>
                 <Link
-                  href="#demo"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-cyan-600/80 to-blue-700/80 border border-cyan-500/30 text-sm text-white hover:from-cyan-500/80 hover:to-blue-600/80 transition-all duration-200"
+                  href="/about"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg glass border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
                 >
-                  <Zap size={16} />
+                  <Info size={15} />
+                  About
+                </Link>
+                <Link
+                  href="/docs"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg glass border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
+                >
+                  <BookOpen size={15} />
+                  API Docs
+                </Link>
+                <Link
+                  href="#demo"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600/80 to-blue-700/80 border border-cyan-500/30 text-sm text-white hover:from-cyan-500/80 hover:to-blue-600/80 transition-all duration-200"
+                >
+                  <Zap size={15} />
                   Try Demo
                 </Link>
               </div>
