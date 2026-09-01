@@ -103,6 +103,18 @@ export default function ChatDemo() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isLoading) return;
@@ -457,7 +469,7 @@ export default function ChatDemo() {
             </button>
           </div>
           <p className="text-xs text-slate-600 mt-2 px-1">
-            Enter to send · Shift+Enter for new line
+            Enter to send · Shift+Enter for new line · ⌘K to focus
           </p>
         </div>
       </div>
