@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 
 from .core.config import config
 from .core.workflow_engine import WorkflowEngine
+from .utils.rate_limiter import SlidingWindowRateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,12 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Authorization"],
+)
+
+app.add_middleware(
+    SlidingWindowRateLimiter,
+    max_requests=60,
+    window_seconds=60,
 )
 
 # Lazy-initialised workflow engine
