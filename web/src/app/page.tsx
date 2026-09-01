@@ -22,6 +22,7 @@ import {
 import ChatDemo from "@/components/ChatDemo";
 import GallerySection from "@/components/GallerySection";
 import MobileNav from "@/components/MobileNav";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 const PLOTS = [
   { file: "ts_diagram_clusters.png", title: "T-S Diagram with Clusters", category: "Clustering" },
@@ -89,10 +90,10 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: "4,922", label: "ARGO Profiles", icon: Database },
-  { value: "4", label: "Ocean Regions", icon: Map },
-  { value: "4", label: "AI Agents", icon: Brain },
-  { value: "17", label: "Visualizations", icon: BarChart3 },
+  { value: 4922, label: "ARGO Profiles", icon: Database },
+  { value: 4, label: "Ocean Regions", icon: Map },
+  { value: 4, label: "AI Agents", icon: Brain },
+  { value: 17, label: "Visualizations", icon: BarChart3 },
 ];
 
 const ARCH_STEPS = [
@@ -222,7 +223,9 @@ export default function Home() {
                   className="glass rounded-2xl p-5 border border-cyan-500/10 hover:border-cyan-500/25 transition-all duration-300 group"
                 >
                   <Icon size={20} className="text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                  <div className="text-2xl font-black gradient-text mb-1">{value}</div>
+                  <div className="text-2xl font-black gradient-text mb-1">
+                    <AnimatedCounter to={value} />
+                  </div>
                   <div className="text-xs text-slate-400">{label}</div>
                 </div>
               ))}
