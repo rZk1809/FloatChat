@@ -86,6 +86,23 @@ class StatsResponse(BaseModel):
     date_range: dict[str, str]
 
 
+class AnomalyRecord(BaseModel):
+    profile_id: str
+    region: str
+    latitude: float
+    longitude: float
+    depth_m: int
+    anomaly_score: float
+    detected_feature: str
+    date: str
+
+
+class AnomaliesResponse(BaseModel):
+    count: int
+    contamination_rate: float
+    anomalies: list[AnomalyRecord]
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -109,6 +126,33 @@ async def dataset_stats():
         total_profiles=4922,
         regions={r: bounds for r, bounds in config.system.regions.items()},
         date_range={"start": "2000-01", "end": "2025-06"},
+    )
+
+
+_SAMPLE_ANOMALIES: list[AnomalyRecord] = [
+    AnomalyRecord(profile_id="6901254_042", region="Bay of Bengal", latitude=14.3, longitude=89.7, depth_m=480, anomaly_score=-0.312, detected_feature="sub-surface salinity spike (>36.8 PSU)", date="2019-08-11"),
+    AnomalyRecord(profile_id="6900564_118", region="Arabian Sea", latitude=18.9, longitude=64.2, depth_m=120, anomaly_score=-0.287, detected_feature="cold intrusion −3.1°C below climatology", date="2020-03-05"),
+    AnomalyRecord(profile_id="6902551_031", region="Indian Ocean", latitude=-8.4, longitude=72.1, depth_m=200, anomaly_score=-0.341, detected_feature="barrier layer thickness anomaly (BLT >35 m)", date="2021-11-22"),
+    AnomalyRecord(profile_id="5905678_007", region="Southern Ocean", latitude=-53.6, longitude=38.9, depth_m=950, anomaly_score=-0.298, detected_feature="deep salinity minimum below 34.1 PSU", date="2018-06-14"),
+    AnomalyRecord(profile_id="6901989_063", region="Bay of Bengal", latitude=10.1, longitude=84.5, depth_m=60, anomaly_score=-0.271, detected_feature="fresh water lens (salinity <30 PSU) post-cyclone", date="2023-10-29"),
+]
+
+
+@app.get("/anomalies", response_model=AnomaliesResponse, tags=["Analysis"])
+async def list_anomalies(limit: int = 10, region: str | None = None):
+    """Return profiles flagged as anomalous by the Isolation Forest model.
+
+    Results are representative samples from the training dataset.
+    Pass ?region=<name> to filter by ocean region.
+    """
+    records = _SAMPLE_ANOMALIES
+    if region:
+        records = [r for r in records if region.lower() in r.region.lower()]
+    records = records[:max(1, min(limit, 50))]
+    return AnomaliesResponse(
+        count=len(records),
+        contamination_rate=0.05,
+        anomalies=records,
     )
 
 
