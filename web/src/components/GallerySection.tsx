@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ZoomIn } from "lucide-react";
+import { ZoomIn, Search, X } from "lucide-react";
 import PlotModal from "./PlotModal";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Plot {
   file: string;
@@ -21,17 +22,46 @@ interface GallerySectionProps {
 export default function GallerySection({ plots }: GallerySectionProps) {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [selectedPlot, setSelectedPlot] = useState<Plot | null>(null);
+  const [searchRaw, setSearchRaw] = useState("");
+  const search = useDebounce(searchRaw, 200);
 
-  const filtered =
-    activeCategory === "All"
-      ? plots
-      : plots.filter((p) => p.category === activeCategory);
+  const filtered = plots
+    .filter((p) => activeCategory === "All" || p.category === activeCategory)
+    .filter((p) => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+    });
 
   return (
     <>
-      {/* Category filters */}
-      <div className="flex flex-wrap gap-2 justify-center mb-8">
-        {CATEGORIES.map((cat) => (
+      {/* Search + Category filters */}
+      <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+        {/* Search */}
+        <div className="relative">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input
+            type="search"
+            value={searchRaw}
+            onChange={(e) => setSearchRaw(e.target.value)}
+            placeholder="Search plots…"
+            aria-label="Search visualizations"
+            className="pl-8 pr-8 py-1.5 rounded-full text-xs bg-ocean-700/60 border border-cyan-500/15 text-slate-300 placeholder-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus:border-cyan-500/40 transition-all w-48"
+          />
+          {searchRaw && (
+            <button
+              onClick={() => setSearchRaw("")}
+              aria-label="Clear search"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Category pills */}
+        <div className="flex flex-wrap gap-2 justify-center">
+          {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
@@ -43,13 +73,20 @@ export default function GallerySection({ plots }: GallerySectionProps) {
           >
             {cat}
             {cat !== "All" && (
-              <span className="ml-1.5 opacity-60">
-                ({plots.filter((p) => p.category === cat).length})
-              </span>
-            )}
-          </button>
-        ))}
+                <span className="ml-1.5 opacity-60">
+                  ({plots.filter((p) => p.category === cat).length})
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {filtered.length === 0 && (
+        <p className="text-center text-slate-500 text-sm py-10">
+          No visualizations match &ldquo;{search}&rdquo;
+        </p>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map(({ file, title, category }) => (
