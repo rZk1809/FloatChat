@@ -22,6 +22,8 @@ from .core.workflow_engine import WorkflowEngine
 from .utils.rate_limiter import SlidingWindowRateLimiter
 from .utils.job_queue import create_job, get_job, run_job_async
 from .utils.session_store import get_history, clear_history, record_query
+from .utils.metrics import get_metrics_response, prometheus_available
+from starlette.responses import Response as StarletteResponse
 
 logger = logging.getLogger(__name__)
 
@@ -253,3 +255,10 @@ async def clear_session_history(session_id: str):
     """Clear all query history for a session."""
     count = clear_history(session_id)
     return {"session_id": session_id, "deleted": count}
+
+
+@app.get("/metrics", tags=["System"], include_in_schema=False)
+async def prometheus_metrics():
+    """Prometheus scrape endpoint — available only when prometheus_client is installed."""
+    body, content_type = get_metrics_response()
+    return StarletteResponse(content=body, media_type=content_type)
