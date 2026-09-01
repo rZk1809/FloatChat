@@ -21,6 +21,7 @@ from .core.config import config
 from .core.workflow_engine import WorkflowEngine
 from .utils.rate_limiter import SlidingWindowRateLimiter
 from .utils.job_queue import create_job, get_job, run_job_async
+from .utils.session_store import get_history, clear_history, record_query
 
 logger = logging.getLogger(__name__)
 
@@ -222,6 +223,13 @@ async def run_query(req: QueryRequest, request: Request):
 
     elapsed_ms = int(time.monotonic() * 1000) - start_ms
 
+    record_query(
+        session_id=session_id,
+        query=req.query,
+        response=result.get("main_response", ""),
+        elapsed_ms=elapsed_ms,
+    )
+
     return QueryResponse(
         session_id=session_id,
         query=req.query,
@@ -231,3 +239,17 @@ async def run_query(req: QueryRequest, request: Request):
         recommendations=result.get("recommendations", []),
         processing_time_ms=elapsed_ms,
     )
+
+
+@app.get("/sessions/{session_id}/history", tags=["Session"])
+async def session_history(session_id: str):
+    """Return the query history for a session (most recent first)."""
+    entries = get_history(session_id)
+    return {"session_id": session_id, "count": len(entries), "entries": list(reversed(entries))}
+
+
+@app.delete("/sessions/{session_id}/history", tags=["Session"])
+async def clear_session_history(session_id: str):
+    """Clear all query history for a session."""
+    count = clear_history(session_id)
+    return {"session_id": session_id, "deleted": count}
