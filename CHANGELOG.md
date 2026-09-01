@@ -6,6 +6,61 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and this proj
 
 ---
 
+## [1.3.0] — 2026-09-01
+
+### Added
+
+**Web frontend**
+- `useDebounce<T>` hook — cancellable timeout-based value debouncing
+- `useMediaQuery` hook — reactive `window.matchMedia` wrapper
+- `PageProgressBar` component — 2 px route-change indicator mounted globally in `layout.tsx`
+- `BackToTop` component — fixed scroll button appearing after 400 px of scroll
+- `MobileNav` component — hamburger drawer with full nav links, backdrop, and scroll-lock; mounted in page nav
+- `Breadcrumb` component — generic home + crumb list for inner pages
+- `AnimatedCounter` component — IntersectionObserver-triggered cubic ease-out count-up animation
+- `SkipToContent` component — SR-only focus-visible accessibility link in `<body>`
+- Gallery search filter — keyword input with 200 ms `useDebounce`, clear button, and empty-state message
+- `/status` page — live service health dashboard with per-route latency probes and manual refresh
+- `/data` page — static data explorer showing region stats, depth layers, ML metrics, and variable tables
+- `/api/chat/stream` route — SSE streaming chat endpoint using Anthropic SDK `stream()` helper
+- JSON-LD structured data — `SoftwareApplication` schema in `<head>` via `layout.tsx`
+- Web app manifest (`/manifest.json`) — standalone PWA support with FloatChat branding
+- `Status` nav link in desktop nav and `MobileNav` drawer
+- `Data` link in page footer
+- Keyboard shortcut ⌘K / Ctrl+K to focus the chat textarea globally
+
+**Python backend**
+- `utils/rate_limiter.py` — `SlidingWindowRateLimiter` Starlette middleware (60 req/min per IP; exempt paths bypass)
+- `GET /anomalies` endpoint — returns Isolation Forest–flagged profiles with score, region, coords, depth, and feature; supports `?limit` and `?region` params
+- `utils/job_queue.py` — in-memory async job queue with TTL eviction
+- `POST /jobs` (202) + `GET /jobs/{id}` — async query submission and status polling
+- `utils/session_store.py` — per-session query history store (50 entries, 2 h TTL)
+- `GET /sessions/{id}/history` + `DELETE /sessions/{id}/history` — session history read/clear
+- `utils/metrics.py` — optional Prometheus instrumentation (graceful no-op if `prometheus_client` absent)
+- `GET /metrics` — Prometheus scrape endpoint
+
+**Tests**
+- `web/src/components/GallerySection.test.tsx` — 6 unit tests (render, category filter, search, clear, empty-state)
+- `web/src/hooks/useDebounce.test.ts` — 5 unit tests with vitest fake timers
+- `tests/test_api.py` — 22 FastAPI endpoint tests (health, stats, regions, anomalies, jobs, sessions)
+- `tests/test_agents.py` — 14 agent unit tests (PlannerAgent init, fallback parse, mocked LLM; SynthesizerAgent)
+
+**CI/CD & tooling**
+- `Makefile` — dev targets: install, lint, typecheck, test, build, docker-up/down, clean
+- `.env.example` — documents all environment variables for backend and web
+- `.pre-commit-config.yaml` — pre-commit-hooks, ruff (lint + format), mypy
+- `.github/workflows/security.yml` — weekly pip-audit, npm audit, CodeQL analysis
+- Docker Compose — backend `healthcheck`, `LOG_LEVEL` from env, json-file log rotation
+
+### Changed
+
+- `pyproject.toml` version bumped to 1.3.0; optional deps split into `test`, `lint`, `type`, `metrics`, `server`, `dev`, `all` groups
+- `APP_VERSION` constant updated to `1.3.0`
+- Nav bar: added Status link, GitHub button now hidden on xs screens with MobileNav replacing it
+- Footer: added Data Explorer link
+
+---
+
 ## [1.2.0] — 2025-08-14
 
 ### Added
