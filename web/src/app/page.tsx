@@ -599,6 +599,13 @@ export default function Home() {
                   API Docs
                 </Link>
                 <Link
+                  href="/data"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg glass border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
+                >
+                  <Database size={15} />
+                  Data
+                </Link>
+                <Link
                   href="#demo"
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600/80 to-blue-700/80 border border-cyan-500/30 text-sm text-white hover:from-cyan-500/80 hover:to-blue-600/80 transition-all duration-200"
                 >
