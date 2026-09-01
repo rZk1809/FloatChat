@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PageProgressBar from "@/components/PageProgressBar";
 
 export const metadata: Metadata = {
   title: "FloatChat — Intelligent Oceanographic Data Analysis",
@@ -34,7 +35,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <PageProgressBar />
+        {children}
+      </body>
     </html>
   );
 }
