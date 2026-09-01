@@ -16,9 +16,11 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from fastapi import BackgroundTasks
 from .core.config import config
 from .core.workflow_engine import WorkflowEngine
 from .utils.rate_limiter import SlidingWindowRateLimiter
+from .utils.job_queue import create_job, get_job, run_job_async
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +105,21 @@ class AnomaliesResponse(BaseModel):
     anomalies: list[AnomalyRecord]
 
 
+class AsyncQueryRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=2000)
+    session_id: str | None = None
+
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    query: str
+    session_id: str
+    status: str
+    result: dict[str, Any] | None = None
+    error: str | None = None
+    elapsed_ms: int | None = None
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -160,6 +177,26 @@ async def list_anomalies(limit: int = 10, region: str | None = None):
 async def list_regions():
     """Return the geographic regions supported by FloatChat."""
     return {"regions": config.system.regions}
+
+
+@app.post("/jobs", tags=["Analysis"], status_code=202)
+async def submit_job(req: AsyncQueryRequest, background_tasks: BackgroundTasks):
+    """Submit a query as an async background job.
+
+    Returns immediately with a *job_id*. Poll ``GET /jobs/{job_id}`` for status.
+    """
+    job = create_job(req.query, req.session_id)
+    background_tasks.add_task(run_job_async, job, get_engine)
+    return {"job_id": job.job_id, "status": job.status}
+
+
+@app.get("/jobs/{job_id}", response_model=JobStatusResponse, tags=["Analysis"])
+async def get_job_status(job_id: str):
+    """Poll the status of an async query job."""
+    job = get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found")
+    return JobStatusResponse(**job.to_dict())
 
 
 @app.post("/query", response_model=QueryResponse, tags=["Analysis"])
