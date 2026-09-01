@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import ChatDemo from "@/components/ChatDemo";
 import GallerySection from "@/components/GallerySection";
+import MobileNav from "@/components/MobileNav";
 
 const PLOTS = [
   { file: "ts_diagram_clusters.png", title: "T-S Diagram with Clusters", category: "Clustering" },
@@ -144,17 +145,21 @@ export default function Home() {
             <a href="#architecture" className="hover:text-cyan-400 transition-colors">Architecture</a>
             <Link href="/about" className="hover:text-cyan-400 transition-colors">About</Link>
             <Link href="/docs" className="hover:text-cyan-400 transition-colors">API Docs</Link>
+            <Link href="/status" className="hover:text-cyan-400 transition-colors">Status</Link>
           </div>
-          <a
-            href="https://github.com/rZk1809/FloatChat"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-ocean-700 border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
-          >
-            <Github size={16} />
-            <span className="hidden sm:inline">GitHub</span>
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://github.com/rZk1809/FloatChat"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-ocean-700 border border-cyan-500/20 text-sm text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all duration-200"
+            >
+              <Github size={16} />
+              <span className="hidden sm:inline">GitHub</span>
+            </a>
+            <MobileNav />
+          </div>
         </div>
       </nav>
 
