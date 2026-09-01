@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import PageProgressBar from "@/components/PageProgressBar";
 import BackToTop from "@/components/BackToTop";
+import SkipToContent from "@/components/SkipToContent";
 
 const JSONLD = {
   "@context": "https://schema.org",
@@ -63,6 +64,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <SkipToContent />
         <PageProgressBar />
         {children}
         <BackToTop />
