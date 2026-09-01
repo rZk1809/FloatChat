@@ -3,6 +3,24 @@ import "./globals.css";
 import PageProgressBar from "@/components/PageProgressBar";
 import BackToTop from "@/components/BackToTop";
 
+const JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "FloatChat",
+  description:
+    "AI-powered ARGO oceanographic float data analysis using a multi-agent RAG pipeline.",
+  applicationCategory: "ScienceApplication",
+  operatingSystem: "Web",
+  author: {
+    "@type": "Person",
+    name: "Rohith Ganesh Kanchi",
+    url: "https://github.com/rZk1809",
+  },
+  license: "https://opensource.org/licenses/MIT",
+  codeRepository: "https://github.com/rZk1809/FloatChat",
+  keywords: "ARGO floats, oceanography, AI, RAG, Indian Ocean, Bay of Bengal",
+};
+
 export const metadata: Metadata = {
   title: "FloatChat — Intelligent Oceanographic Data Analysis",
   description:
@@ -36,6 +54,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSONLD) }}
+        />
+      </head>
       <body className="antialiased">
         <PageProgressBar />
         {children}
