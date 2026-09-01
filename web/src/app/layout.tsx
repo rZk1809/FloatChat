@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import PageProgressBar from "@/components/PageProgressBar";
+import BackToTop from "@/components/BackToTop";
 
 export const metadata: Metadata = {
   title: "FloatChat — Intelligent Oceanographic Data Analysis",
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className="antialiased">
         <PageProgressBar />
         {children}
+        <BackToTop />
       </body>
     </html>
   );
