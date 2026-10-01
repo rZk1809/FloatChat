@@ -49,7 +49,7 @@ Maps to the 8 tracked phases; each phase ends with a verification gate before th
 - Health endpoints reporting API/Postgres/Chroma/Ollama/model state separately.
 
 **Phase 5 — Frontend integration, tests, CI, docs**
-- Replace the Anthropic-direct `/api/chat` with a validated call to the new backend; add rate limiting and request schema validation (H-5, M-12); remove `dangerouslySetInnerHTML` in favor of a safe markdown renderer (H-6); fix the accessibility gaps (M-13); replace hardcoded stats with live values from the backend (L-3).
+- Replace the provider-direct `/api/chat` with a validated call to the new backend; add rate limiting and request schema validation (H-5, M-12); remove `dangerouslySetInnerHTML` in favor of a safe markdown renderer (H-6); fix the accessibility gaps (M-13); replace hardcoded stats with live values from the backend (L-3).
 - Add `tests/` (unit, integration with fixture Chroma/fake Ollama, one end-to-end path), CI workflow, coverage gate.
 - Write the remaining docs deliverables (`ARCHITECTURE.md`, `DATA_AND_INDEX_MIGRATION.md`, `RAG_EVALUATION.md`, `DATA_DICTIONARY.md`, `SECURITY.md`, updated `README.md`/`CONTRIBUTING.md`/`docs/DEVELOPMENT.md`) and `docs/audit/VERIFICATION_REPORT.md`.
 

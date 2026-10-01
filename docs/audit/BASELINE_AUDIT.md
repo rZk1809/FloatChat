@@ -86,8 +86,8 @@ Two independent, compounding bugs on the product's own flagship demo query ("com
 
 ### H-5. Public, unauthenticated `/api/chat` route with no rate limiting or spend caps
 **Domain:** frontend-security (FE-1) · **Status:** verified
-`web/src/app/api/chat/route.ts` forwards every request straight to Anthropic using the developer's own key. The only "limit" (`ChatDemo.tsx:50`, `.slice(-10)`) is client-side and trivially bypassed by calling the endpoint directly. No rate-limit package, `middleware.ts`, or `vercel.json` exists anywhere in the repo.
-**Impact:** anyone who finds the public URL can script unlimited billed completions against the owner's Anthropic account.
+`web/src/app/api/chat/route.ts` forwards every request straight to the LLM provider using the developer's own key. The only "limit" (`ChatDemo.tsx:50`, `.slice(-10)`) is client-side and trivially bypassed by calling the endpoint directly. No rate-limit package, `middleware.ts`, or `vercel.json` exists anywhere in the repo.
+**Impact:** anyone who finds the public URL can script unlimited billed completions against the owner's LLM provider account.
 **Fix:** server-side rate limiting (IP-keyed) plus a hard request/spend ceiling; consider a lightweight challenge for the public demo.
 **Acceptance test:** the (N+1)th request within a window returns 429 with zero additional upstream API calls.
 

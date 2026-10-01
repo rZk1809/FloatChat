@@ -69,7 +69,7 @@ export default function StatusPage() {
       name: "Chat API",
       status: "checking",
       icon: <Cpu size={16} />,
-      description: "/api/chat — Claude AI (Anthropic Haiku 4.5)",
+      description: "/api/chat — Cloud LLM (web demo)",
     },
     {
       name: "Health Endpoint",

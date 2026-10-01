@@ -199,7 +199,7 @@ The chat demo requires an `ANTHROPIC_API_KEY` configured as a Vercel environment
 
 ## Quick Start — Web App (Vercel)
 
-The `web/` directory contains a Next.js app deployable to Vercel with a live Claude AI demo.
+The `web/` directory contains a Next.js app deployable to Vercel with a live AI demo.
 
 ```bash
 cd web
@@ -221,7 +221,7 @@ Deploy to Vercel:
 
 | Layer | Technologies |
 |---|---|
-| **AI / LLM** | Ollama (qwen2:1.5b, embeddinggemma:300m), Claude API (web demo) |
+| **AI / LLM** | Ollama (qwen2:1.5b, embeddinggemma:300m), Cloud LLM API (web demo) |
 | **Vector DB** | ChromaDB (4,922 ARGO profile embeddings) |
 | **Relational DB** | PostgreSQL (measurements, profiles, floats tables) |
 | **ML Models** | XGBoost, K-Means, Isolation Forest, ARIMA/SARIMA |

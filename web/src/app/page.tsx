@@ -309,7 +309,7 @@ export default function Home() {
           </div>
 
           <p className="text-center text-xs text-slate-600 mt-4">
-            Powered by Claude AI (Anthropic) · For the full system with ARGO data queries, deploy locally with PostgreSQL + ChromaDB + Ollama
+            Powered by AI · For the full system with ARGO data queries, deploy locally with PostgreSQL + ChromaDB + Ollama
           </p>
         </div>
       </section>
@@ -515,7 +515,7 @@ export default function Home() {
               },
               {
                 q: "Can I query the real ARGO database through the live demo?",
-                a: "The live demo on this website uses Claude AI to answer questions about FloatChat and ocean science. To run actual ARGO data queries (retrieving profiles, running ML models, generating plots), you need to deploy FloatChat locally with PostgreSQL, ChromaDB, and Ollama — see the GitHub repo for instructions.",
+                a: "The live demo on this website uses AI to answer questions about FloatChat and ocean science. To run actual ARGO data queries (retrieving profiles, running ML models, generating plots), you need to deploy FloatChat locally with PostgreSQL, ChromaDB, and Ollama — see the GitHub repo for instructions.",
               },
               {
                 q: "What oceanographic regions does FloatChat cover?",
@@ -614,7 +614,7 @@ export default function Home() {
                 </Link>
               </div>
               <p className="text-xs text-slate-600">
-                Deployed on Vercel · Powered by Anthropic Claude
+                Deployed on Vercel · Powered by AI
               </p>
             </div>
           </div>

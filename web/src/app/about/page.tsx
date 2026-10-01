@@ -26,7 +26,7 @@ const TECH_STACK = [
     icon: Brain,
     color: "text-purple-400",
     items: [
-      "Anthropic Claude (Haiku 4.5) — web demo assistant",
+      "Cloud LLM API — web demo assistant",
       "Ollama + qwen2:1.5b — local NL synthesis",
       "embeddinggemma:300m — profile embeddings",
     ],

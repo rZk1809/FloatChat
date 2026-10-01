@@ -145,7 +145,7 @@ export default function ChatDemo() {
             ...newMessages,
             {
               role: "assistant",
-              content: `**System Notice:** ${data.error}\n\nThe chat demo requires an Anthropic API key to be configured. The FloatChat system architecture and all visualizations are still fully available above.`,
+              content: `**System Notice:** ${data.error}\n\nThe chat demo requires an API key to be configured. The FloatChat system architecture and all visualizations are still fully available above.`,
               timestamp: Date.now(),
             },
           ]);
@@ -282,7 +282,7 @@ export default function ChatDemo() {
             <p className="font-semibold text-white text-sm">FloatChat Assistant</p>
             <div className="flex items-center gap-2">
               <div className="pulse-dot" style={{ width: 7, height: 7 }} />
-              <p className="text-xs text-cyan-400">Powered by Claude AI</p>
+              <p className="text-xs text-cyan-400">Powered by AI</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">

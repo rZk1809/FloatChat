@@ -22,7 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and this proj
 - Gallery search filter — keyword input with 200 ms `useDebounce`, clear button, and empty-state message
 - `/status` page — live service health dashboard with per-route latency probes and manual refresh
 - `/data` page — static data explorer showing region stats, depth layers, ML metrics, and variable tables
-- `/api/chat/stream` route — SSE streaming chat endpoint using Anthropic SDK `stream()` helper
+- `/api/chat/stream` route — SSE streaming chat endpoint using the LLM SDK `stream()` helper
 - JSON-LD structured data — `SoftwareApplication` schema in `<head>` via `layout.tsx`
 - Web app manifest (`/manifest.json`) — standalone PWA support with FloatChat branding
 - `Status` nav link in desktop nav and `MobileNav` drawer
@@ -154,4 +154,4 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and this proj
 - 17 generated visualizations (T-S diagrams, depth profiles, geographic maps, PDP plots)
 - Streamlit web UI and CLI interface
 - Next.js landing page deployed on Vercel
-- Claude AI chat demo (`/api/chat`)
+- AI chat demo (`/api/chat`)
